@@ -1,0 +1,46 @@
+#!/usr/bin/env ruby
+
+lib = File.expand_path("../../lib", __FILE__)
+$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
+
+STDOUT.sync = true
+
+require "bundler/setup"
+require "topological_inventory/azure/collector"
+require "topological_inventory/azure/collector/application_metrics"
+
+def parse_args
+  require 'optimist'
+  opts = Optimist::options do
+    opt :source, "Inventory Source UID",
+        :type => :string, :required => ENV["SOURCE_UID"].nil?, :default => ENV["SOURCE_UID"]
+    opt :client_id, "Secret access key for the Azure API access",
+        :type => :string, :required => ENV["AUTH_USERNAME"].nil?, :default => ENV["AUTH_USERNAME"]
+    opt :client_secret, "Secret access key for the Azure API access",
+        :type => :string, :required => ENV["AUTH_PASSWORD"].nil?, :default => ENV["AUTH_PASSWORD"]
+    opt :tenant_id, "Tenant ID of the Azure API access",
+        :type => :string, :required => ENV["AUTH_TENANT_ID"].nil?, :default => ENV["AUTH_TENANT_ID"]
+    opt :ingress_api, "Hostname of the ingress-api route",
+        :type => :string, :default => ENV["INGRESS_API"] || "http://localhost:9292"
+    opt :metrics_port, "Port to expose the metrics endpoint on, 0 to disable metrics",
+        :type => :integer, :default => (ENV["METRICS_PORT"] || 9394).to_i
+  end
+
+  opts
+end
+
+args = parse_args
+
+ingress_api_uri = URI(args[:ingress_api])
+
+TopologicalInventoryIngressApiClient.configure.scheme = ingress_api_uri.scheme || "http"
+TopologicalInventoryIngressApiClient.configure.host   = "#{ingress_api_uri.host}:#{ingress_api_uri.port}"
+
+begin
+  metrics = TopologicalInventory::Azure::Collector::ApplicationMetrics.new(args[:metrics_port])
+  collector = TopologicalInventory::Azure::Collector.new(
+    args[:source], args[:client_id], args[:client_secret], args[:tenant_id], metrics)
+  collector.collect!
+ensure
+  metrics.stop_server
+end
