@@ -1,8 +1,9 @@
 module TopologicalInventory::Azure
   class Parser
     module Vm
-      def parse_vms(instance, scope)
+      def parse_vms(data, scope)
         # require 'byebug'; byebug if instance.tags.present?
+        instance = data[:vm]
 
         uid          = instance.id
         flavor       = lazy_find(:flavors, :source_ref => instance.hardware_profile.vm_size) if instance.hardware_profile.vm_size
@@ -17,7 +18,7 @@ module TopologicalInventory::Azure
           :power_state  => parse_vm_power_state(power_state),
           :flavor       => flavor,
           :subscription => subscription,
-          # :mac_addresses => parse_network(instance)[:mac_addresses],
+          :mac_addresses => parse_network(data)[:mac_addresses],
         )
 
         collections[:vms].data << vm
@@ -32,19 +33,20 @@ module TopologicalInventory::Azure
 
       def parse_network(instance)
         network = {
-          :fqdn                 => instance.public_dns_name,
-          :private_ip_address   => instance.private_ip_address,
-          :public_ip_address    => instance.public_ip_address,
+          :fqdn                 => nil, # TODO(lsmola) we can set this from .primary interface
+          :private_ip_address   => nil,
+          :public_ip_address    => nil,
           :mac_addresses        => [],
           :private_ip_addresses => [],
           :public_ip_addresses  => [],
         }
 
-        (instance.network_interfaces || []).each do |interface|
+        (instance[:network_interfaces] || []).each do |interface|
           network[:mac_addresses] << interface.mac_address
-          interface.private_ip_addresses.each do |private_ip|
-            network[:private_ip_addresses] << private_ip.private_ip_address
-            network[:public_ip_addresses] << private_ip&.association&.public_ip if private_ip&.association&.public_ip
+          interface.ip_configurations.each do |private_ip|
+            network[:private_ip_addresses] << private_ip.private_ipaddress
+            # TODO(lsmola) getting .public_ipaddress is another n+1 query, do we want it?
+            # network[:public_ip_addresses] << nil
           end
         end
 

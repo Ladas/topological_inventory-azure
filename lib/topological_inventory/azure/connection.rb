@@ -10,6 +10,10 @@ module TopologicalInventory
           raw_connect(options.merge(:service => :Resources))
         end
 
+        def network(options)
+          raw_connect(options.merge(:service => :Network))
+        end
+
         def subscriptions(options)
           raw_connect(options.merge(:service => :Subscriptions))
         end

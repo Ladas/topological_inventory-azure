@@ -11,13 +11,9 @@ module TopologicalInventory
     class Collector < ::TopologicalInventoryIngressApiClient::Collector
       include Logging
 
-      require "topological_inventory/azure/collector/cloud_formation"
       require "topological_inventory/azure/collector/compute"
-      require "topological_inventory/azure/collector/service_catalog"
 
-      include Azure::Collector::CloudFormation
       include Azure::Collector::Compute
-      include Azure::Collector::ServiceCatalog
 
       def initialize(source, client_id, client_secret, tenant_id, metrics, default_limit: 1_000, poll_time: 5)
         super(source,
@@ -106,6 +102,7 @@ module TopologicalInventory
       def compute_entity_types
         %w(vms source_regions flavors)
       end
+
       #
       # def service_catalog_entity_types
       #   %w(service_offerings service_instances service_plans)
@@ -142,13 +139,17 @@ module TopologicalInventory
         Connection.compute(connection_attributes.merge(scope))
       end
 
+      def network_connection(scope)
+        Connection.network(connection_attributes.merge(scope))
+      end
+
       def resources_connection(scope)
         Connection.resources(connection_attributes.merge(scope))
       end
 
-      def network_connection
-        with_shared_token { |token| @azure_network ||= manager.connect(:token => token, :service => :Network) }
-      end
+      # def network_connection
+      #   with_shared_token { |token| @azure_network ||= manager.connect(:token => token, :service => :Network) }
+      # end
 
       def connection_attributes
         {:client_id => client_id, :client_secret => client_secret, :tenant_id => tenant_id}

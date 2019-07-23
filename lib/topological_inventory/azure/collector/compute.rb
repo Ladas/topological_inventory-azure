@@ -22,7 +22,13 @@ module TopologicalInventory
 
         def vms(scope)
           resources_connection(scope).resources.list(:filter => "resourceType eq 'Microsoft.Compute/virtualMachines'").map do |vm|
-            compute_connection(scope).virtual_machines.get(resource_group_name(vm.id), vm.name, :expand => 'instanceView')
+            vm = compute_connection(scope).virtual_machines.get(resource_group_name(vm.id), vm.name, :expand => 'instanceView')
+
+            network_interfaces = vm.network_profile.network_interfaces.map do |x|
+              network_connection(scope).network_interfaces.get(resource_group_name(x.id), network_interface_name(x.id))
+            end
+
+            {:vm => vm, :network_interfaces => network_interfaces}
           end
         end
 
@@ -49,6 +55,12 @@ module TopologicalInventory
         def resource_group_id(ems_ref)
           if (match = ems_ref.match(%r{(?<id>/subscriptions/[^/]+/resourceGroups/[^/]+)/.+}i))
             match[:id].downcase
+          end
+        end
+
+        def network_interface_name(ems_ref)
+          if (match = ems_ref.match(%r{/subscriptions/.*?/networkInterfaces/(?<name>.*?)$}i))
+            match[:name].downcase
           end
         end
       end
