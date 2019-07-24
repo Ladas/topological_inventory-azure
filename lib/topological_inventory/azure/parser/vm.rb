@@ -2,7 +2,6 @@ module TopologicalInventory::Azure
   class Parser
     module Vm
       def parse_vms(data, scope)
-        # require 'byebug'; byebug if instance.tags.present?
         instance = data[:vm]
 
         uid          = instance.id
@@ -17,7 +16,7 @@ module TopologicalInventory::Azure
           :name         => instance.name || uid,
           :power_state  => parse_vm_power_state(power_state),
           :flavor       => flavor,
-          :subscription => subscription,
+          # :subscription => subscription, # TODO(lsmola) do the modeling first
           :mac_addresses => parse_network(data)[:mac_addresses],
         )
 

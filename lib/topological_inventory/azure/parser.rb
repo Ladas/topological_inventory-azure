@@ -1,8 +1,5 @@
 require "active_support/inflector"
 require "topological_inventory/azure/parser/source_region"
-require "topological_inventory/azure/parser/service_offering"
-require "topological_inventory/azure/parser/service_plan"
-require "topological_inventory/azure/parser/service_instance"
 require "topological_inventory/azure/parser/flavor"
 require "topological_inventory/azure/parser/vm"
 require "topological_inventory/azure/parser/volume"
@@ -15,9 +12,6 @@ module TopologicalInventory
   module Azure
     class Parser
       include Parser::SourceRegion
-      include Parser::ServiceOffering
-      include Parser::ServicePlan
-      include Parser::ServiceInstance
       include Parser::Flavor
       include Parser::Vm
       include Parser::Volume
