@@ -58,7 +58,6 @@ module TopologicalInventory
         all_subscriptions_connection.subscriptions.list.each do |subscription|
           scope = {:subscription_id => subscription.subscription_id}
 
-          # require 'byebug'; byebug
           send(entity_type.to_s, scope).each do |entity|
             count += 1
             parser.send("parse_#{entity_type}", entity, scope)
@@ -100,7 +99,7 @@ module TopologicalInventory
       # end
 
       def compute_entity_types
-        %w(vms source_regions flavors)
+        %w(vms source_regions flavors volumes)
       end
 
       #

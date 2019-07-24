@@ -32,6 +32,10 @@ module TopologicalInventory
           end
         end
 
+        def volumes(scope)
+          compute_connection(scope).disks.list
+        end
+
         # def orchestration_stacks
         #   resource_groups.flat_map do |group|
         #     # Old API names it 'list', recent versions name it 'list_by_resource_group'
@@ -45,6 +49,7 @@ module TopologicalInventory
         #     end
         #   end
         # end
+        #
 
         def resource_group_name(ems_ref)
           if (match = ems_ref.match(%r{/subscriptions/[^/]+/resourceGroups/(?<name>[^/]+)/.+}i))
