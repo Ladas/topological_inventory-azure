@@ -3,10 +3,10 @@ require 'aws-sdk'
 require 'aws-sdk-cloudformation'
 require 'aws-sdk-servicecatalog'
 require 'aws-sdk-pricing'
-require_relative 'aws_stubs'
+require_relative 'azure_stubs'
 
 RSpec.describe TopologicalInventory::Azure::Collector do
-  include AwsStubs
+  include Azure
 
   it "collects and parses vms" do
     parser = collect_and_parse(:vms)
