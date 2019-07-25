@@ -94,22 +94,9 @@ module TopologicalInventory
         Parser.new
       end
 
-      # def cloud_formations_entity_types
-      #   %w(orchestrations_stacks)
-      # end
-
       def compute_entity_types
         %w(vms source_regions flavors volumes)
       end
-
-      #
-      # def service_catalog_entity_types
-      #   %w(service_offerings service_instances service_plans)
-      # end
-      #
-      # def pricing_entity_types
-      #   %w(flavors volume_types)
-      # end
 
       def endpoint_types
         %w(compute)
@@ -146,22 +133,15 @@ module TopologicalInventory
         Connection.resources(connection_attributes.merge(scope))
       end
 
-      # def network_connection
-      #   with_shared_token { |token| @azure_network ||= manager.connect(:token => token, :service => :Network) }
-      # end
-
       def connection_attributes
         {:client_id => client_id, :client_secret => client_secret, :tenant_id => tenant_id}
       end
 
       def with_shared_token
+        # TODO(lsmola) figure out how to reuse token for all calls
         client = yield @token
         @token ||= client.credentials
         client
-      end
-
-      def raw_power_state(instance_view)
-        instance_view&.statuses&.detect { |s| s.code.start_with?('PowerState/') }&.code
       end
 
       def resource_group_name(ems_ref)
@@ -176,12 +156,10 @@ module TopologicalInventory
         end
       end
 
-      def default_region
-        "us-east-1"
-      end
-
-      def inventory_name
-        "Azure"
+      def network_interface_name(ems_ref)
+        if (match = ems_ref.match(%r{/subscriptions/.*?/networkInterfaces/(?<name>.*?)$}i))
+          match[:name].downcase
+        end
       end
     end
   end

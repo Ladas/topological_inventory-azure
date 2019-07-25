@@ -4,18 +4,18 @@ module TopologicalInventory::Azure
       def parse_vms(data, scope)
         instance = data[:vm]
 
-        uid          = instance.id
-        flavor       = lazy_find(:flavors, :source_ref => instance.hardware_profile.vm_size) if instance.hardware_profile.vm_size
-        subscription = lazy_find(:subscriptions, :source_ref => scope[:subscription_id])
+        uid           = instance.id
+        flavor        = lazy_find(:flavors, :source_ref => instance.hardware_profile.vm_size) if instance.hardware_profile.vm_size
+        _subscription = lazy_find(:subscriptions, :source_ref => scope[:subscription_id])
 
-        power_state  = 'unknown' unless (power_state = raw_power_state(instance.instance_view))
+        power_state   = 'unknown' unless (power_state = raw_power_state(instance.instance_view))
 
         vm = TopologicalInventoryIngressApiClient::Vm.new(
-          :source_ref   => uid,
-          :uid_ems      => uid,
-          :name         => instance.name || uid,
-          :power_state  => parse_vm_power_state(power_state),
-          :flavor       => flavor,
+          :source_ref  => uid,
+          :uid_ems     => uid,
+          :name        => instance.name || uid,
+          :power_state => parse_vm_power_state(power_state),
+          :flavor      => flavor,
           # :subscription => subscription, # TODO(lsmola) do the modeling first
           :mac_addresses => parse_network(data)[:mac_addresses],
         )
@@ -31,8 +31,9 @@ module TopologicalInventory::Azure
       end
 
       def parse_network(instance)
+        # TODO(lsmola) we can set this from .primary interface
         network = {
-          :fqdn                 => nil, # TODO(lsmola) we can set this from .primary interface
+          :fqdn                 => nil,
           :private_ip_address   => nil,
           :public_ip_address    => nil,
           :mac_addresses        => [],

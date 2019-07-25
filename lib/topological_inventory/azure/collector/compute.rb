@@ -50,24 +50,6 @@ module TopologicalInventory
         #   end
         # end
         #
-
-        def resource_group_name(ems_ref)
-          if (match = ems_ref.match(%r{/subscriptions/[^/]+/resourceGroups/(?<name>[^/]+)/.+}i))
-            match[:name].downcase
-          end
-        end
-
-        def resource_group_id(ems_ref)
-          if (match = ems_ref.match(%r{(?<id>/subscriptions/[^/]+/resourceGroups/[^/]+)/.+}i))
-            match[:id].downcase
-          end
-        end
-
-        def network_interface_name(ems_ref)
-          if (match = ems_ref.match(%r{/subscriptions/.*?/networkInterfaces/(?<name>.*?)$}i))
-            match[:name].downcase
-          end
-        end
       end
     end
   end
