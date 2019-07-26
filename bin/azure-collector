@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-lib = File.expand_path("../../lib", __FILE__)
+lib = File.expand_path('../lib', __dir__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 STDOUT.sync = true
@@ -11,7 +11,7 @@ require "topological_inventory/azure/collector/application_metrics"
 
 def parse_args
   require 'optimist'
-  opts = Optimist::options do
+  opts = Optimist.options do
     opt :source, "Inventory Source UID",
         :type => :string, :required => ENV["SOURCE_UID"].nil?, :default => ENV["SOURCE_UID"]
     opt :client_id, "Secret access key for the Azure API access",
@@ -39,7 +39,8 @@ TopologicalInventoryIngressApiClient.configure.host   = "#{ingress_api_uri.host}
 begin
   metrics = TopologicalInventory::Azure::Collector::ApplicationMetrics.new(args[:metrics_port])
   collector = TopologicalInventory::Azure::Collector.new(
-    args[:source], args[:client_id], args[:client_secret], args[:tenant_id], metrics)
+    args[:source], args[:client_id], args[:client_secret], args[:tenant_id], metrics
+  )
   collector.collect!
 ensure
   metrics.stop_server

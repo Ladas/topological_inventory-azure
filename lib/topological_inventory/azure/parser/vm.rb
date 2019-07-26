@@ -11,13 +11,13 @@ module TopologicalInventory::Azure
         power_state   = 'unknown' unless (power_state = raw_power_state(instance.instance_view))
 
         vm = TopologicalInventoryIngressApiClient::Vm.new(
-          :source_ref  => uid,
-          :uid_ems     => uid,
-          :name        => instance.name || uid,
-          :power_state => parse_vm_power_state(power_state),
-          :flavor      => flavor,
+          :source_ref    => uid,
+          :uid_ems       => uid,
+          :name          => instance.name || uid,
+          :power_state   => parse_vm_power_state(power_state),
+          :flavor        => flavor,
           # :subscription => subscription, # TODO(lsmola) do the modeling first
-          :mac_addresses => parse_network(data)[:mac_addresses],
+          :mac_addresses => parse_network(data)[:mac_addresses]
         )
 
         collections[:vms].data << vm
@@ -57,7 +57,7 @@ module TopologicalInventory::Azure
         (tags || []).each do |key, value|
           collections[:vm_tags].data << TopologicalInventoryIngressApiClient::VmTag.new(
             :vm  => lazy_find(:vms, :source_ref => vm_uid),
-            :tag => lazy_find(:tags, :name => key, :value => value, :namespace => "azure"),
+            :tag => lazy_find(:tags, :name => key, :value => value, :namespace => "azure")
           )
         end
       end

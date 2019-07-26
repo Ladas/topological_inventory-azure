@@ -34,7 +34,7 @@ module TopologicalInventory
         TopologicalInventoryIngressApiClient::InventoryObjectLazy.new(
           :inventory_collection_name => collection,
           :reference                 => reference,
-          :ref                       => ref,
+          :ref                       => ref
         )
       end
     end

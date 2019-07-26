@@ -12,7 +12,7 @@ module TopologicalInventory::Azure
       block.call do |entity|
         yield(entity)
       end
-    rescue => e
+    rescue StandardError => e
       log.warn("#{error_message}. Message: #{e.message}")
       []
     end

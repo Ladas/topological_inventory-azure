@@ -18,8 +18,7 @@ module AzureStubs
         :number_of_cores          => 10,
         :resource_disk_size_in_mb => 1024,
         :max_data_disk_count      => 2,
-        :memory_in_mb             => 2048,
-
+        :memory_in_mb             => 2048
       )
     ]
   end
@@ -31,21 +30,22 @@ module AzureStubs
           :id               => "instanceid1",
           :name             => "Instance Name 1",
           :hardware_profile => OpenStruct.new(
-            :vm_size => "flavor_1",
+            :vm_size => "flavor_1"
           ),
           :instance_view    => OpenStruct.new(
             :statuses => [
               OpenStruct.new(:code => "PowerState/stopping")
-            ])
+            ]
+          )
         ),
         :network_interfaces => OpenStruct.new(
           :mac_address          => "macadr1",
           :private_ip_addresses => [
             OpenStruct.new(
-              :private_ipaddress => "10.10.10.1",
+              :private_ipaddress => "10.10.10.1"
             ),
             OpenStruct.new(
-              :private_ipaddress => "11.10.10.1",
+              :private_ipaddress => "11.10.10.1"
             ),
           ]
         ),
@@ -63,7 +63,7 @@ module AzureStubs
         :disk_size_gb       => 100,
         :managed_by         => "vm_id_1",
         :disk_state         => "Attached",
-        :location           => "useast20",
+        :location           => "useast20"
       )
     ]
   end

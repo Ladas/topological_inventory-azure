@@ -15,7 +15,7 @@ module TopologicalInventory
 
         def flavors(scope)
           compute_provider = resources_connection(scope).providers.get('Microsoft.Compute')
-          provider_region = compute_provider&.resource_types&.first&.locations&.first.gsub("\s", "").downcase
+          provider_region = compute_provider&.resource_types&.first&.locations&.first.delete("\s").downcase
 
           compute_connection(scope).virtual_machine_sizes.list(provider_region).value
         end

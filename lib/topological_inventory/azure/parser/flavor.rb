@@ -6,9 +6,9 @@ module TopologicalInventory::Azure
           :source_ref => flavor.name,
           :name       => flavor.name,
           :cpus       => flavor.number_of_cores,
-          :disk_size  => flavor.resource_disk_size_in_mb * 1024 ** 2,
+          :disk_size  => flavor.resource_disk_size_in_mb * 1024**2,
           :disk_count => flavor.max_data_disk_count,
-          :memory     => flavor.memory_in_mb * 1024 ** 2,
+          :memory     => flavor.memory_in_mb * 1024**2,
           :extra      => {
             :attributes => {
               :max_data_disk_count      => flavor.max_data_disk_count,

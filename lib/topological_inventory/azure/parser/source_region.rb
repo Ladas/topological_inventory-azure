@@ -5,7 +5,7 @@ module TopologicalInventory::Azure
         region = TopologicalInventoryIngressApiClient::SourceRegion.new(
           :source_ref => region.name,
           :name       => region.display_name,
-          :endpoint   => nil,
+          :endpoint   => nil
         )
 
         collections[:source_regions].data << region

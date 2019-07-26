@@ -32,7 +32,7 @@ module TopologicalInventory
             entity_types.each do |entity_type|
               process_entity(entity_type)
             end
-          rescue => e
+          rescue StandardError => e
             logger.error(e)
             metrics.record_error
           ensure
@@ -62,21 +62,21 @@ module TopologicalInventory
             count += 1
             parser.send("parse_#{entity_type}", entity, scope)
 
-            if count >= limits[entity_type]
-              count                   = 0
-              refresh_state_part_uuid = SecureRandom.uuid
-              total_parts             += save_inventory(parser.collections.values, inventory_name, schema_name, refresh_state_uuid, refresh_state_part_uuid)
-              sweep_scope.merge(parser.collections.values.map(&:name))
+            next unless count >= limits[entity_type]
 
-              parser = create_parser
-            end
+            count                   = 0
+            refresh_state_part_uuid = SecureRandom.uuid
+            total_parts += save_inventory(parser.collections.values, inventory_name, schema_name, refresh_state_uuid, refresh_state_part_uuid)
+            sweep_scope.merge(parser.collections.values.map(&:name))
+
+            parser = create_parser
           end
         end
 
         if count > 0
           # Save the rest
           refresh_state_part_uuid = SecureRandom.uuid
-          total_parts             += save_inventory(parser.collections.values, inventory_name, schema_name, refresh_state_uuid, refresh_state_part_uuid)
+          total_parts += save_inventory(parser.collections.values, inventory_name, schema_name, refresh_state_uuid, refresh_state_part_uuid)
           sweep_scope.merge(parser.collections.values.map(&:name))
         end
 
@@ -95,11 +95,11 @@ module TopologicalInventory
       end
 
       def compute_entity_types
-        %w(vms source_regions flavors volumes)
+        %w[vms source_regions flavors volumes]
       end
 
       def endpoint_types
-        %w(compute)
+        %w[compute]
       end
 
       def connection_for_entity_type(entity_type, scope)

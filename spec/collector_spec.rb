@@ -11,16 +11,15 @@ RSpec.describe TopologicalInventory::Azure::Collector do
       match_array(
         [
           {:flavor        =>
-             {:inventory_collection_name => :flavors,
-              :reference                 => {:source_ref => "flavor_1"},
-              :ref                       => :manager_ref},
+                             {:inventory_collection_name => :flavors,
+                              :reference                 => {:source_ref => "flavor_1"},
+                              :ref                       => :manager_ref},
            :mac_addresses => [],
            :name          => "Instance Name 1",
            :power_state   => "powering_down",
            :source_ref    => "instanceid1",
            :uid_ems       => "instanceid1"}
         ]
-
       )
     )
   end
@@ -32,13 +31,13 @@ RSpec.describe TopologicalInventory::Azure::Collector do
       match_array(
         [
           {:name              => "volume name 1",
-           :size              => 100 * 1024 ** 3,
+           :size              => 100 * 1024**3,
            :source_created_at => "2019-10-10 20:42",
            :source_ref        => "volumeid1",
            :source_region     =>
-             {:inventory_collection_name => :source_regions,
-              :reference                 => {:source_ref => "useast20"},
-              :ref                       => :manager_ref},
+                                 {:inventory_collection_name => :source_regions,
+                                  :reference                 => {:source_ref => "useast20"},
+                                  :ref                       => :manager_ref},
            :state             => "Succeeded"}
         ]
       )
@@ -65,19 +64,18 @@ RSpec.describe TopologicalInventory::Azure::Collector do
         [
           {:cpus       => 10,
            :disk_count => 2,
-           :disk_size  => 1024 * 1024 ** 2,
+           :disk_size  => 1024 * 1024**2,
            :extra      =>
-             {:attributes =>
-                {:max_data_disk_count      => 2,
-                 :memory_in_mb             => 2048,
-                 :number_of_cores          => 10,
-                 :os_disk_size_in_mb       => nil,
-                 :resource_disk_size_in_mb => 1024}},
-           :memory     => 2048 * 1024 ** 2,
+                          {:attributes =>
+                                          {:max_data_disk_count      => 2,
+                                           :memory_in_mb             => 2048,
+                                           :number_of_cores          => 10,
+                                           :os_disk_size_in_mb       => nil,
+                                           :resource_disk_size_in_mb => 1024}},
+           :memory     => 2048 * 1024**2,
            :name       => "flavor1",
            :source_ref => "flavor1"}
         ]
-
       )
     )
   end
@@ -88,7 +86,8 @@ RSpec.describe TopologicalInventory::Azure::Collector do
                               :record_error => nil)
 
     collector = TopologicalInventory::Azure::Collector.new(
-      "source", "access_key_id", "secret_access_key", "tenant_id", metrics)
+      "source", "access_key_id", "secret_access_key", "tenant_id", metrics
+    )
     allow(collector).to receive(:save_inventory).and_return(1)
     allow(collector).to receive(:sweep_inventory)
     allow(collector).to receive(:create_parser).and_return(parser)
