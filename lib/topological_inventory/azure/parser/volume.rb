@@ -34,23 +34,15 @@ module TopologicalInventory::Azure
       end
 
       def parse_volume_state(state)
-        # TODO(lsmola) define allowed states in the OpenAPI spec
-        case state
-        when "Succeeded", "Failed"
-          state
-        else
-          "unknown"
-        end
+        # TODO(lsmola) define allowed states in the OpenAPI spec, find the documented states, so far I've seen
+        # Succeeded
+        state
       end
 
       def parse_volume_attachment_state(state)
-        # TODO(lsmola) define allowed states in the OpenAPI spec
-        case state
-        when "Unattached", "Attached"
-          state
-        else
-          "unknown"
-        end
+        # TODO(lsmola) define allowed states in the OpenAPI spec, find the documented states, so far I've seen
+        # Unattached and Reserved
+        state
       end
     end
   end
