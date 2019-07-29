@@ -46,7 +46,6 @@ module TopologicalInventory
             :subscription_id => subscription_id
           }
 
-          # TODO(lsmola) what is the right version for azure cloud? Right now taking latest
           ::Azure.const_get(service)::Profiles::Latest::Mgmt::Client.new(credentials)
         end
       end
