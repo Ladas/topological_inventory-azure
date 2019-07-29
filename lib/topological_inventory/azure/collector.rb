@@ -133,6 +133,10 @@ module TopologicalInventory
         Connection.resources(connection_attributes.merge(scope))
       end
 
+      def storage_connection(scope)
+        Connection.storage(connection_attributes.merge(scope))
+      end
+
       def connection_attributes
         {:client_id => client_id, :client_secret => client_secret, :tenant_id => tenant_id}
       end

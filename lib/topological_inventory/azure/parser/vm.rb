@@ -11,20 +11,44 @@ module TopologicalInventory::Azure
         power_state   = 'unknown' unless (power_state = raw_power_state(instance.instance_view))
 
         vm = TopologicalInventoryIngressApiClient::Vm.new(
-          :source_ref    => uid,
-          :uid_ems       => uid,
-          :name          => instance.name || uid,
-          :power_state   => parse_vm_power_state(power_state),
-          :flavor        => flavor,
+          :source_ref  => uid,
+          :uid_ems     => uid,
+          :name        => instance.name || uid,
+          :power_state => parse_vm_power_state(power_state),
+          :flavor      => flavor,
           # :subscription => subscription, # TODO(lsmola) do the modeling first
           :mac_addresses => parse_network(data)[:mac_addresses]
         )
 
         collections[:vms].data << vm
         parse_vm_tags(uid, instance.tags)
+        parse_volume_attachments(uid, instance.storage_profile)
       end
 
       private
+
+      def parse_volume_attachments(uid, storage_profile)
+        parse_attachment(uid, storage_profile.os_disk)
+
+        storage_profile.data_disks.each do |disk|
+          parse_attachment(uid, disk)
+        end
+      end
+
+      def parse_attachment(uid, disk)
+        attachment_id = if disk.managed_disk
+                          disk.managed_disk.id
+                        elsif disk.vhd
+                          disk.vhd.uri
+                        end
+
+        collections[:volume_attachments].data << TopologicalInventoryIngressApiClient::VolumeAttachment.new(
+          :volume => lazy_find(:volumes, :source_ref => attachment_id),
+          :vm     => lazy_find(:vms, :source_ref => uid),
+          :device => nil,
+          :state  => nil
+        )
+      end
 
       def raw_power_state(instance_view)
         instance_view&.statuses&.detect { |s| s.code.start_with?('PowerState/') }&.code

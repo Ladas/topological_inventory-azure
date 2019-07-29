@@ -6,6 +6,10 @@ module TopologicalInventory
           raw_connect(options.merge(:service => :Compute))
         end
 
+        def storage(options)
+          raw_connect(options.merge(:service => :Storage))
+        end
+
         def resources(options)
           raw_connect(options.merge(:service => :Resources))
         end
@@ -38,6 +42,7 @@ module TopologicalInventory
           require 'azure_mgmt_resources'
           require 'azure_mgmt_compute'
           require 'azure_mgmt_network'
+          require 'azure_mgmt_storage'
 
           credentials = {
             :tenant_id       => tenant_id,

@@ -12,7 +12,7 @@ module TopologicalInventory
 
         def flavors(scope)
           compute_provider = resources_connection(scope).providers.get('Microsoft.Compute')
-          provider_region = compute_provider&.resource_types&.first&.locations&.first.delete("\s").downcase
+          provider_region  = compute_provider&.resource_types&.first&.locations&.first.delete("\s").downcase
 
           compute_connection(scope).virtual_machine_sizes.list(provider_region).value
         end
@@ -30,8 +30,42 @@ module TopologicalInventory
         end
 
         def volumes(scope)
-          compute_connection(scope).disks.list
+          func = lambda do |&blk|
+            # Managed disks
+            compute_connection(scope).disks.list.each do |managed_disk|
+              blk.call(managed_disk)
+            end
+
+            # Unmanaged disks
+            storage_connection(scope).storage_accounts.list.value.each do |storage_account|
+              keys = storage_connection(scope).storage_accounts.list_keys(resource_group_name(storage_account.id), storage_account.name).keys
+              key  = keys.detect { |x| x.permissions == "FULL" } || keys.first
+              next unless key
+
+              require 'azure/storage/blob'
+              blob_client = ::Azure::Storage::Blob::BlobService.create(
+                storage_account_name: storage_account.name,
+                storage_access_key:   key.value
+              )
+              blob_client.with_filter(::Azure::Storage::Common::Core::Filter::ExponentialRetryPolicyFilter.new)
+
+              storage_connection(scope).blob_containers.list(resource_group_name(storage_account.id), storage_account.name).value.each do |container|
+                # TODO do we need to manually paginate using blob_client.list_blobs(container.name).continuation_token,
+                # example says so https://docs.microsoft.com/en-us/azure/storage/blobs/storage-quickstart-blobs-ruby
+                blob_client.list_blobs(container.name).each do |blob|
+                  blk.call({blob: blob, :storage_account => storage_account, :container => container})
+                end
+              end
+            end
+          end
+
+          Iterator.new(func, "Couldn't fetch 'volumes' of service for scope #{scope}.")
         end
+
+        # def unmanaged_volumes(scope)
+        #   require 'byebug'; byebug
+        #
+        # end
 
         # def orchestration_stacks
         #   resource_groups.flat_map do |group|

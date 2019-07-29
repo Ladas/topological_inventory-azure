@@ -19,8 +19,11 @@ group :test, :devlopment do
 end
 
 gem "azure_mgmt_compute", "~>0.18.7"
-gem "azure_mgmt_monitor", "0.17.4"
-gem "azure_mgmt_network", "0.19.0"
+gem "azure_mgmt_storage", "~>0.17.10"
+gem "azure_mgmt_monitor", "~>0.17.4"
+gem "azure_mgmt_network", "~>0.19.0"
 gem "azure_mgmt_resources", "~>0.17.6"
 gem "azure_mgmt_subscriptions", "~>0.17.3"
 gem "ms_rest_azure", "~>0.11.1"
+
+gem 'azure-storage-blob', "~>1.1.0"
