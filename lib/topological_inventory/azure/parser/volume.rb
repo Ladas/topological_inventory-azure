@@ -20,10 +20,10 @@ module TopologicalInventory::Azure
           :name              => data.name || data.id,
           :state             => parse_volume_state(data.provisioning_state),
           :source_created_at => data.time_created,
-          :size              => (data.disk_size_gb || 0) * 1024 ** 3,
+          :size              => (data.disk_size_gb || 0) * 1024**3,
           # TODO(lsmola) is there a volume_type concept in Azure?
           # :volume_type       => lazy_find(:volume_types, :source_ref => data.volume_type),
-          :source_region => lazy_find(:source_regions, :source_ref => data.location)
+          :source_region     => lazy_find(:source_regions, :source_ref => data.location)
         )
       end
 
@@ -32,13 +32,13 @@ module TopologicalInventory::Azure
         TopologicalInventoryIngressApiClient::Volume.new(
           :source_ref        => uri,
           :name              => data[:blob].name || uri,
-          :state             => nil, # TODO options here are .lease_status and .lease_state
+          :state             => nil, # TODO: options here are .lease_status and .lease_state
           :source_created_at => nil,
           :source_updated_at => data[:blob].properties[:last_modified],
           :size              => data[:blob].properties[:content_length],
           # TODO(lsmola) is there a volume_type concept in Azure?
           # :volume_type       => lazy_find(:volume_types, :source_ref => data.volume_type),
-          :source_region => lazy_find(:source_regions, :source_ref => data[:storage_account].location)
+          :source_region     => lazy_find(:source_regions, :source_ref => data[:storage_account].location)
         )
       end
 

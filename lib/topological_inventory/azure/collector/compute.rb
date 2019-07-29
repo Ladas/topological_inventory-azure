@@ -44,16 +44,16 @@ module TopologicalInventory
 
               require 'azure/storage/blob'
               blob_client = ::Azure::Storage::Blob::BlobService.create(
-                storage_account_name: storage_account.name,
-                storage_access_key:   key.value
+                :storage_account_name => storage_account.name,
+                :storage_access_key   => key.value
               )
               blob_client.with_filter(::Azure::Storage::Common::Core::Filter::ExponentialRetryPolicyFilter.new)
 
               storage_connection(scope).blob_containers.list(resource_group_name(storage_account.id), storage_account.name).value.each do |container|
-                # TODO do we need to manually paginate using blob_client.list_blobs(container.name).continuation_token,
+                # TODO: do we need to manually paginate using blob_client.list_blobs(container.name).continuation_token,
                 # example says so https://docs.microsoft.com/en-us/azure/storage/blobs/storage-quickstart-blobs-ruby
                 blob_client.list_blobs(container.name).each do |blob|
-                  blk.call({blob: blob, :storage_account => storage_account, :container => container})
+                  blk.call(:blob => blob, :storage_account => storage_account, :container => container)
                 end
               end
             end

@@ -58,8 +58,8 @@ module AzureStubs
           ),
           :tags             => {
             :old_name => "Good old VM",
-            :new_name => "Good new VM"}
-
+            :new_name => "Good new VM"
+          }
         ),
         :network_interfaces => OpenStruct.new(
           :mac_address          => "macadr1",
@@ -91,7 +91,7 @@ module AzureStubs
       {
         :storage_account => OpenStruct.new(
           :primary_endpoints => OpenStruct.new(
-            :blob => "https://my.blob.azure.com/",
+            :blob => "https://my.blob.azure.com/"
           ),
           :location          => "useast20"
         ),
@@ -101,7 +101,7 @@ module AzureStubs
         :blob            => OpenStruct.new(
           :name       => "my_blob",
           :properties => {
-            :content_length => 30 * 1024 ** 3,
+            :content_length => 30 * 1024**3,
             :last_modified  => "2012-12-12 20:20"
           }
         )
