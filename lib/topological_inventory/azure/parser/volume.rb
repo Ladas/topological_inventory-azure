@@ -15,7 +15,7 @@ module TopologicalInventory::Azure
 
         collections[:volumes].data << volume
         parse_volume_attachments(data)
-        # TODO(lmsola) parse volume_tags but first we need the modeling
+        # TODO(lsmola) parse volume_tags but first we need the modeling
       end
 
       private
