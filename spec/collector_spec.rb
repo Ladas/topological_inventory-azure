@@ -7,19 +7,72 @@ RSpec.describe TopologicalInventory::Azure::Collector do
   it "collects and parses vms" do
     parser = collect_and_parse(:vms)
 
+    # require 'byebug'; byebug
     expect(format_hash(:vms, parser)).to(
       match_array(
         [
           {:flavor        =>
-                             {:inventory_collection_name => :flavors,
-                              :reference                 => {:source_ref => "flavor_1"},
-                              :ref                       => :manager_ref},
+             {:inventory_collection_name => :flavors,
+              :reference                 => {:source_ref => "flavor_1"},
+              :ref                       => :manager_ref},
            :mac_addresses => [],
            :name          => "Instance Name 1",
            :power_state   => "powering_down",
            :source_ref    => "instanceid1",
            :uid_ems       => "instanceid1"}
         ]
+      )
+    )
+
+    expect(format_hash(:volume_attachments, parser)).to(
+      match_array(
+        [
+          {:vm     =>
+             {:inventory_collection_name => :vms,
+              :reference                 => {:source_ref => "instanceid1"},
+              :ref                       => :manager_ref},
+           :volume =>
+             {:inventory_collection_name => :volumes,
+              :reference                 => {:source_ref => "managed_os_disk_id_1"},
+              :ref                       => :manager_ref}},
+          {:vm     =>
+             {:inventory_collection_name => :vms,
+              :reference                 => {:source_ref => "instanceid1"},
+              :ref                       => :manager_ref},
+           :volume =>
+             {:inventory_collection_name => :volumes,
+              :reference                 => {:source_ref => "managed_disk_id_1"},
+              :ref                       => :manager_ref}},
+          {:vm     =>
+             {:inventory_collection_name => :vms,
+              :reference                 => {:source_ref => "instanceid1"},
+              :ref                       => :manager_ref},
+           :volume =>
+             {:inventory_collection_name => :volumes,
+              :reference                 => {:source_ref => "unmanaged_disk_uri_1"},
+              :ref                       => :manager_ref}}]
+      )
+    )
+
+    expect(format_hash(:vm_tags, parser)).to(
+      match_array(
+        [{:tag =>
+            {:inventory_collection_name => :tags,
+             :reference                 => {:name => :old_name, :value => "Good old VM", :namespace => "azure"},
+             :ref                       => :manager_ref},
+          :vm  =>
+            {:inventory_collection_name => :vms,
+             :reference                 => {:source_ref => "instanceid1"},
+             :ref                       => :manager_ref}},
+         {:tag =>
+            {:inventory_collection_name => :tags,
+             :reference                 => {:name => :new_name, :value => "Good new VM", :namespace => "azure"},
+             :ref                       => :manager_ref},
+          :vm  =>
+            {:inventory_collection_name => :vms,
+             :reference                 => {:source_ref => "instanceid1"},
+             :ref                       => :manager_ref}}]
+
       )
     )
   end
@@ -31,14 +84,21 @@ RSpec.describe TopologicalInventory::Azure::Collector do
       match_array(
         [
           {:name              => "volume name 1",
-           :size              => 100 * 1024**3,
+           :size              => 100 * 1024 ** 3,
            :source_created_at => "2019-10-10 20:42",
            :source_ref        => "volumeid1",
            :source_region     =>
-                                 {:inventory_collection_name => :source_regions,
-                                  :reference                 => {:source_ref => "useast20"},
-                                  :ref                       => :manager_ref},
-           :state             => "Succeeded"}
+             {:inventory_collection_name => :source_regions,
+              :reference                 => {:source_ref => "useast20"},
+              :ref                       => :manager_ref},
+           :state             => "Succeeded"},
+          {:name          => "my_blob",
+           :size          => 30 * 1024 ** 3,
+           :source_ref    => "https://my.blob.azure.com/unmanaged_storage_container/my_blob",
+           :source_region =>
+             {:inventory_collection_name => :source_regions,
+              :reference                 => {:source_ref => "useast20"},
+              :ref                       => :manager_ref}}
         ]
       )
     )
@@ -64,15 +124,15 @@ RSpec.describe TopologicalInventory::Azure::Collector do
         [
           {:cpus       => 10,
            :disk_count => 2,
-           :disk_size  => 1024 * 1024**2,
+           :disk_size  => 1024 * 1024 ** 2,
            :extra      =>
-                          {:attributes =>
-                                          {:max_data_disk_count      => 2,
-                                           :memory_in_mb             => 2048,
-                                           :number_of_cores          => 10,
-                                           :os_disk_size_in_mb       => nil,
-                                           :resource_disk_size_in_mb => 1024}},
-           :memory     => 2048 * 1024**2,
+             {:attributes =>
+                {:max_data_disk_count      => 2,
+                 :memory_in_mb             => 2048,
+                 :number_of_cores          => 10,
+                 :os_disk_size_in_mb       => nil,
+                 :resource_disk_size_in_mb => 1024}},
+           :memory     => 2048 * 1024 ** 2,
            :name       => "flavor1",
            :source_ref => "flavor1"}
         ]

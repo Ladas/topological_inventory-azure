@@ -36,7 +36,30 @@ module AzureStubs
             :statuses => [
               OpenStruct.new(:code => "PowerState/stopping")
             ]
-          )
+          ),
+          :storage_profile  => OpenStruct.new(
+            :os_disk    => OpenStruct.new(
+              :managed_disk => OpenStruct.new(
+                :id => "managed_os_disk_id_1"
+              )
+            ),
+            :data_disks => [
+              OpenStruct.new(
+                :managed_disk => OpenStruct.new(
+                  :id => "managed_disk_id_1"
+                )
+              ),
+              OpenStruct.new(
+                :vhd => OpenStruct.new(
+                  :uri => "unmanaged_disk_uri_1"
+                )
+              )
+            ]
+          ),
+          :tags             => {
+            :old_name => "Good old VM",
+            :new_name => "Good new VM"}
+
         ),
         :network_interfaces => OpenStruct.new(
           :mac_address          => "macadr1",
@@ -64,7 +87,25 @@ module AzureStubs
         :managed_by         => "vm_id_1",
         :disk_state         => "Attached",
         :location           => "useast20"
-      )
+      ),
+      {
+        :storage_account => OpenStruct.new(
+          :primary_endpoints => OpenStruct.new(
+            :blob => "https://my.blob.azure.com/",
+          ),
+          :location          => "useast20"
+        ),
+        :container       => OpenStruct.new(
+          :name => "unmanaged_storage_container"
+        ),
+        :blob            => OpenStruct.new(
+          :name       => "my_blob",
+          :properties => {
+            :content_length => 30 * 1024 ** 3,
+            :last_modified  => "2012-12-12 20:20"
+          }
+        )
+      }
     ]
   end
 

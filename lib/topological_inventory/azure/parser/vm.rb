@@ -78,7 +78,7 @@ module TopologicalInventory::Azure
       end
 
       def parse_vm_tags(vm_uid, tags)
-        (tags || []).each do |key, value|
+        (tags || {}).each do |key, value|
           collections[:vm_tags].data << TopologicalInventoryIngressApiClient::VmTag.new(
             :vm  => lazy_find(:vms, :source_ref => vm_uid),
             :tag => lazy_find(:tags, :name => key, :value => value, :namespace => "azure")
