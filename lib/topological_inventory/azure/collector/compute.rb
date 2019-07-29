@@ -3,9 +3,6 @@ module TopologicalInventory
     class Collector
       module Compute
         def source_regions(scope)
-          # compute_provider = resources_connection(scope).providers.get('Microsoft.Compute')
-          # compute_provider&.resource_types&.first&.locations.map { |x| x.gsub("\s", "").downcase}
-
           all_subscriptions_connection.subscriptions.list_locations(scope[:subscription_id]).value
         end
 
