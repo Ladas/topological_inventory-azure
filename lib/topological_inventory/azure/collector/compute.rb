@@ -62,11 +62,6 @@ module TopologicalInventory
           Iterator.new(func, "Couldn't fetch 'volumes' of service for scope #{scope}.")
         end
 
-        # def unmanaged_volumes(scope)
-        #   require 'byebug'; byebug
-        #
-        # end
-
         # def orchestration_stacks
         #   resource_groups.flat_map do |group|
         #     # Old API names it 'list', recent versions name it 'list_by_resource_group'

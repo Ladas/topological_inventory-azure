@@ -7,7 +7,6 @@ RSpec.describe TopologicalInventory::Azure::Collector do
   it "collects and parses vms" do
     parser = collect_and_parse(:vms)
 
-    # require 'byebug'; byebug
     expect(format_hash(:vms, parser)).to(
       match_array(
         [
