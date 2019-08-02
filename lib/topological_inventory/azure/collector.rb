@@ -12,8 +12,10 @@ module TopologicalInventory
       include Logging
 
       require "topological_inventory/azure/collector/compute"
+      require "topological_inventory/azure/collector/network"
 
       include Azure::Collector::Compute
+      include Azure::Collector::Network
 
       def initialize(source, client_id, client_secret, tenant_id, metrics, default_limit: 1_000, poll_time: 5)
         super(source,
@@ -98,8 +100,12 @@ module TopologicalInventory
         %w[vms source_regions flavors volumes]
       end
 
+      def network_entity_types
+        %w[floating_ips networks network_adapters security_groups]
+      end
+
       def endpoint_types
-        %w[compute]
+        %w[network compute]
       end
 
       def connection_for_entity_type(entity_type, scope)
