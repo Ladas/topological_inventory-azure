@@ -5,6 +5,7 @@ module TopologicalInventory::Azure
         instance = data[:vm]
 
         uid           = instance.id
+
         flavor        = lazy_find(:flavors, :source_ref => instance.hardware_profile.vm_size) if instance.hardware_profile.vm_size
         _subscription = lazy_find(:subscriptions, :source_ref => scope[:subscription_id])
 
@@ -54,7 +55,7 @@ module TopologicalInventory::Azure
         instance_view&.statuses&.detect { |s| s.code.start_with?('PowerState/') }&.code
       end
 
-      def parse_network(instance)
+      def parse_network(data)
         # TODO(lsmola) we can set this from .primary interface
         network = {
           :fqdn                 => nil,
@@ -65,16 +66,27 @@ module TopologicalInventory::Azure
           :public_ip_addresses  => [],
         }
 
-        (instance[:network_interfaces] || []).each do |interface|
+        (data[:network_interfaces] || []).each do |interface|
           network[:mac_addresses] << interface.mac_address
           interface.ip_configurations.each do |private_ip|
             network[:private_ip_addresses] << private_ip.private_ipaddress
             # TODO(lsmola) getting .public_ipaddress is another n+1 query, do we want it?
             # network[:public_ip_addresses] << nil
           end
+
+          parse_vm_security_groups(data, interface)
         end
 
         network
+      end
+
+      def parse_vm_security_groups(data, interface)
+        return unless interface.network_security_group
+
+        collections[:vm_security_groups].data << TopologicalInventoryIngressApiClient::VmSecurityGroup.new(
+          :vm             => lazy_find(:vms, :source_ref => data[:vm].id),
+          :security_group => lazy_find(:security_groups, :source_ref => interface.network_security_group),
+        )
       end
 
       def parse_vm_tags(vm_uid, tags)
