@@ -60,18 +60,12 @@ module TopologicalInventory
         all_subscriptions_connection.subscriptions.list.each do |subscription|
           scope = {:subscription_id => subscription.subscription_id}
 
-          send(entity_type.to_s, scope).each do |entity|
-            count += 1
-            parser.send("parse_#{entity_type}", entity, scope)
+          # Collect, parse and save entity data
+          parser, count, total_parts, sweep_scope = save_entity(entity_type, refresh_state_uuid, parser, scope, count, total_parts, sweep_scope)
 
-            next unless count >= limits[entity_type]
-
-            count                   = 0
-            refresh_state_part_uuid = SecureRandom.uuid
-            total_parts += save_inventory(parser.collections.values, inventory_name, schema_name, refresh_state_uuid, refresh_state_part_uuid)
-            sweep_scope.merge(parser.collections.values.map(&:name))
-
-            parser = create_parser
+          # Collect, parse and save related entities data, if there are any
+          (related_entities[entity_type.to_sym] || []).each do |related_entity_type|
+            parser, count, total_parts, sweep_scope = save_entity(related_entity_type, refresh_state_uuid, parser, scope, count, total_parts, sweep_scope)
           end
         end
 
@@ -92,6 +86,33 @@ module TopologicalInventory
         logger.info("Sweeping inactive records for #{sweep_scope} with :refresh_state_uuid => '#{refresh_state_uuid}'...Complete")
       end
 
+      # Collect, parse and save entity data
+      def save_entity(entity_type, refresh_state_uuid, parser, scope, count, total_parts, sweep_scope)
+        send(entity_type.to_s, scope).each do |entity|
+          count += 1
+          parser.send("parse_#{entity_type}", entity, scope)
+
+          if count >= limits[entity_type]
+            count                   = 0
+            refresh_state_part_uuid = SecureRandom.uuid
+            total_parts             += save_inventory(parser.collections.values, inventory_name, schema_name, refresh_state_uuid, refresh_state_part_uuid)
+            sweep_scope.merge(parser.collections.values.map(&:name))
+
+            parser = create_parser
+          end
+        end
+
+        return parser, count, total_parts, sweep_scope
+      end
+
+      # Entities that should be always refreshed and sweeped together, e.g. if by scanning Vms, we're also creating
+      # network adapters
+      def related_entities
+        {
+          :network_adapters => [:floating_ips]
+        }
+      end
+
       def create_parser
         Parser.new
       end
@@ -101,7 +122,7 @@ module TopologicalInventory
       end
 
       def network_entity_types
-        %w[floating_ips networks network_adapters security_groups]
+        %w[networks network_adapters security_groups]
       end
 
       def endpoint_types
