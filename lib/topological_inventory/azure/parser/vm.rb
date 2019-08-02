@@ -85,7 +85,7 @@ module TopologicalInventory::Azure
 
         collections[:vm_security_groups].data << TopologicalInventoryIngressApiClient::VmSecurityGroup.new(
           :vm             => lazy_find(:vms, :source_ref => data[:vm].id),
-          :security_group => lazy_find(:security_groups, :source_ref => interface.network_security_group),
+          :security_group => lazy_find(:security_groups, :source_ref => interface.network_security_group.id),
         )
       end
 
