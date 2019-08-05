@@ -42,7 +42,7 @@ module TopologicalInventory::Azure
               :private_endpoint_network_policies     => subnet.private_endpoint_network_policies,
               :private_link_service_network_policies => subnet.private_link_service_network_policies,
             },
-            :cloud_network       => lazy_find(:cloud_networks, :source_ref => network.id),
+            :network             => lazy_find(:networks, :source_ref => network.id),
             :subscription        => lazy_find(:subscriptions, :source_ref => scope[:subscription_id]),
             :source_region       => lazy_find(:source_regions, :source_ref => network.location),
             :orchestration_stack => nil

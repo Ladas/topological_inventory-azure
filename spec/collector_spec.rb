@@ -187,6 +187,10 @@ RSpec.describe TopologicalInventory::Azure::Collector do
                              {:private_endpoint_network_policies     => nil,
                               :private_link_service_network_policies => nil},
            :name          => "subnet1",
+           :network       =>
+                             {:inventory_collection_name => :networks,
+                              :reference                 => {:source_ref => "network_id"},
+                              :ref                       => :manager_ref},
            :source_ref    => "subnet1_id",
            :source_region =>
                              {:inventory_collection_name => :source_regions,
