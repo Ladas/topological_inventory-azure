@@ -106,7 +106,7 @@ module AzureStubs
         :blob            => OpenStruct.new(
           :name       => "my_blob",
           :properties => {
-            :content_length => 30 * 1024 ** 3,
+            :content_length => 30 * 1024**3,
             :last_modified  => "2012-12-12 20:20"
           }
         )
@@ -135,7 +135,7 @@ module AzureStubs
             :id                 => "subnet1_id",
             :name               => "subnet1",
             :address_prefix     => "10.10.10.10/30",
-            :provisioning_state => "Succeeded",
+            :provisioning_state => "Succeeded"
           )
         ]
       )
@@ -159,7 +159,7 @@ module AzureStubs
               :id => "subnet_id_1"
             ),
             :name              => "ip1",
-            :primary           => true,
+            :primary           => true
           ),
           OpenStruct.new(
             :private_ipaddress => "11.10.10.1",
@@ -167,7 +167,7 @@ module AzureStubs
               :id => "subnet_id_1"
             ),
             :name              => "ip2",
-            :primary           => false,
+            :primary           => false
           ),
         ],
         :network_security_group => OpenStruct.new(

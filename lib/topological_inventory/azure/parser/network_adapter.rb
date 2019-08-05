@@ -17,7 +17,7 @@ module TopologicalInventory::Azure
           :subscription        => lazy_find(:subscriptions, :source_ref => scope[:subscription_id]),
           :source_region       => lazy_find(:source_regions, :source_ref => interface.location),
           :orchestration_stack => nil,
-          :device              => device,
+          :device              => device
         )
 
         parse_network_adapter_ipaddresses(interface, scope)
@@ -51,7 +51,7 @@ module TopologicalInventory::Azure
         (tags || {}).each do |key, value|
           collections[:network_adapter_tags].data << TopologicalInventoryIngressApiClient::NetworkAdapterTag.new(
             :network_adapter => lazy_find(:network_adapters, :source_ref => network_adapter_uid),
-            :tag             => lazy_find(:tags, :name => key, :value => value, :namespace => "azure"),
+            :tag             => lazy_find(:tags, :name => key, :value => value, :namespace => "azure")
           )
         end
       end

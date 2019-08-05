@@ -26,7 +26,7 @@ module TopologicalInventory::Azure
         (tags || {}).each do |key, value|
           collections[:network_tags].data << TopologicalInventoryIngressApiClient::NetworkTag.new(
             :network => lazy_find(:networks, :source_ref => network_uid),
-            :tag     => lazy_find(:tags, :name => key, :value => value, :namespace => "azure"),
+            :tag     => lazy_find(:tags, :name => key, :value => value, :namespace => "azure")
           )
         end
       end
