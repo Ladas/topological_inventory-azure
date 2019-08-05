@@ -27,10 +27,10 @@ module TopologicalInventory::Azure
       end
 
       def parse_floating_ip_tags(floating_ip_uid, tags)
-        tags.each do |tag|
+        (tags || {}).each do |key, value|
           collections[:ipaddress_tags].data << TopologicalInventoryIngressApiClient::IpaddressTag.new(
             :ipaddress => lazy_find(:ipaddresses, :source_ref => floating_ip_uid),
-            :tag       => lazy_find(:tags, :name => tag.key, :value => tag.value, :namespace => "azure"),
+            :tag       => lazy_find(:tags, :name => key, :value => value, :namespace => "azure"),
           )
         end
       end

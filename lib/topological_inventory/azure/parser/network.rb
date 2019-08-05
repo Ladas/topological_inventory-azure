@@ -32,7 +32,7 @@ module TopologicalInventory::Azure
       end
 
       def parse_subnets(network, scope)
-        network.subnets.each do |subnet|
+        (network.subnets || []).each do |subnet|
           collections[:subnets].data << TopologicalInventoryIngressApiClient::Subnet.new(
             :source_ref          => subnet.id,
             :name                => subnet.name,
@@ -41,7 +41,6 @@ module TopologicalInventory::Azure
             :extra               => {
               :private_endpoint_network_policies     => subnet.private_endpoint_network_policies,
               :private_link_service_network_policies => subnet.private_link_service_network_policies,
-
             },
             :cloud_network       => lazy_find(:cloud_networks, :source_ref => network.id),
             :subscription        => lazy_find(:subscriptions, :source_ref => scope[:subscription_id]),

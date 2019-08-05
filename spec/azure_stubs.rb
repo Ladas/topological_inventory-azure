@@ -61,17 +61,22 @@ module AzureStubs
             :new_name => "Good new VM"
           }
         ),
-        :network_interfaces => OpenStruct.new(
-          :mac_address          => "macadr1",
-          :private_ip_addresses => [
-            OpenStruct.new(
-              :private_ipaddress => "10.10.10.1"
-            ),
-            OpenStruct.new(
-              :private_ipaddress => "11.10.10.1"
-            ),
-          ]
-        ),
+        :network_interfaces => [
+          OpenStruct.new(
+            :mac_address            => "macadr1",
+            :ip_configurations      => [
+              OpenStruct.new(
+                :private_ipaddress => "10.10.10.1"
+              ),
+              OpenStruct.new(
+                :private_ipaddress => "11.10.10.1"
+              ),
+            ],
+            :network_security_group => OpenStruct.new(
+              :id => "security_group_id"
+            )
+          )
+        ],
       }
     ]
   end
@@ -101,7 +106,7 @@ module AzureStubs
         :blob            => OpenStruct.new(
           :name       => "my_blob",
           :properties => {
-            :content_length => 30 * 1024**3,
+            :content_length => 30 * 1024 ** 3,
             :last_modified  => "2012-12-12 20:20"
           }
         )
@@ -114,6 +119,95 @@ module AzureStubs
       OpenStruct.new(
         :name         => "useast20",
         :display_name => "Nice east of the US sector 20"
+      )
+    ]
+  end
+
+  def mocked_networks
+    [
+      OpenStruct.new(
+        :id                 => "network_id",
+        :name               => "network name",
+        :provisioning_state => "Succeeded",
+        :location           => "useast20",
+        :subnets            => [
+          OpenStruct.new(
+            :id                 => "subnet1_id",
+            :name               => "subnet1",
+            :address_prefix     => "10.10.10.10/30",
+            :provisioning_state => "Succeeded",
+          )
+        ]
+      )
+    ]
+  end
+
+  def mocked_network_adapters
+    [
+      OpenStruct.new(
+        :virtual_machine        => OpenStruct.new(
+          :id => "vm_id_1"
+        ),
+        :id                     => "interface_1",
+        :mac_address            => "mac_addr_1",
+        :name                   => "eth0",
+        :location               => "useast20",
+        :ip_configurations      => [
+          OpenStruct.new(
+            :private_ipaddress => "10.10.10.1",
+            :subnet            => OpenStruct.new(
+              :id => "subnet_id_1"
+            ),
+            :name              => "ip1",
+            :primary           => true,
+          ),
+          OpenStruct.new(
+            :private_ipaddress => "11.10.10.1",
+            :subnet            => OpenStruct.new(
+              :id => "subnet_id_1"
+            ),
+            :name              => "ip2",
+            :primary           => false,
+          ),
+        ],
+        :network_security_group => OpenStruct.new(
+          :id => "security_group_id"
+        ),
+        :tags                   => {
+          :env => "super_prod"
+        }
+      )
+    ]
+  end
+
+  def mocked_floating_ips
+    [
+      OpenStruct.new(
+        :id               => "floating_ip_id_1",
+        :name             => "floating_ip_name_1",
+        :ip_configuration => OpenStruct.new(
+          :id => "/subscriptions/guid/resourceGroups/resource_group_name/providers/Microsoft.Network/networkInterfaces/vm1nic1/ipConfigurations/ip1"
+        ),
+        :ip_address       => "10.10.10.3",
+        :location         => "useast20",
+        :ip_tags          => {
+          :env   => "prod",
+          :owner => "CEO",
+        }
+      )
+    ]
+  end
+
+  def mocked_security_groups
+    [
+      OpenStruct.new(
+        :id                 => "security_group_id_1",
+        :name               => "security_group_name_1",
+        :provisioning_state => "Succeeded",
+        :location           => "useast20",
+        :tags               => {
+          :dimension => "42"
+        }
       )
     ]
   end
