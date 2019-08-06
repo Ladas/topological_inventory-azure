@@ -18,6 +18,14 @@ RSpec.describe TopologicalInventory::Azure::Collector do
            :name          => "Instance Name 1",
            :power_state   => "powering_down",
            :source_ref    => "instanceid1",
+           :source_region =>
+                             {:inventory_collection_name => :source_regions,
+                              :reference                 => {:source_ref => nil},
+                              :ref                       => :manager_ref},
+           :subscription  =>
+                             {:inventory_collection_name => :subscriptions,
+                              :reference                 => {:source_ref => "subscription1"},
+                              :ref                       => :manager_ref},
            :uid_ems       => "instanceid1"}
         ]
       )
@@ -98,20 +106,28 @@ RSpec.describe TopologicalInventory::Azure::Collector do
       match_array(
         [
           {:name              => "volume name 1",
-           :size              => 100 * 1024**3,
+           :size              => 107374182400,
            :source_created_at => "2019-10-10 20:42",
            :source_ref        => "volumeid1",
            :source_region     =>
                                  {:inventory_collection_name => :source_regions,
                                   :reference                 => {:source_ref => "useast20"},
                                   :ref                       => :manager_ref},
-           :state             => "Succeeded"},
+           :state             => "Succeeded",
+           :subscription      =>
+                                 {:inventory_collection_name => :subscriptions,
+                                  :reference                 => {:source_ref => "subscription1"},
+                                  :ref                       => :manager_ref}},
           {:name          => "my_blob",
-           :size          => 30 * 1024**3,
+           :size          => 32212254720,
            :source_ref    => "https://my.blob.azure.com/unmanaged_storage_container/my_blob",
            :source_region =>
                              {:inventory_collection_name => :source_regions,
                               :reference                 => {:source_ref => "useast20"},
+                              :ref                       => :manager_ref},
+           :subscription  =>
+                             {:inventory_collection_name => :subscriptions,
+                              :reference                 => {:source_ref => "subscription1"},
                               :ref                       => :manager_ref}}
         ]
       )

@@ -3,13 +3,10 @@ module TopologicalInventory::Azure
     module Vm
       def parse_vms(data, scope)
         instance = data[:vm]
+        uid      = instance.id
 
-        uid           = instance.id
-
-        flavor        = lazy_find(:flavors, :source_ref => instance.hardware_profile.vm_size) if instance.hardware_profile.vm_size
-        _subscription = lazy_find(:subscriptions, :source_ref => scope[:subscription_id])
-
-        power_state   = 'unknown' unless (power_state = raw_power_state(instance.instance_view))
+        flavor      = lazy_find(:flavors, :source_ref => instance.hardware_profile.vm_size) if instance.hardware_profile.vm_size
+        power_state = 'unknown' unless (power_state = raw_power_state(instance.instance_view))
 
         vm = TopologicalInventoryIngressApiClient::Vm.new(
           :source_ref    => uid,
@@ -17,7 +14,8 @@ module TopologicalInventory::Azure
           :name          => instance.name || uid,
           :power_state   => parse_vm_power_state(power_state),
           :flavor        => flavor,
-          # :subscription => subscription, # TODO(lsmola) do the modeling first
+          :source_region => lazy_find(:source_regions, :source_ref => instance.location),
+          :subscription  => lazy_find(:subscriptions, :source_ref => scope[:subscription_id]),
           :mac_addresses => parse_network(data)[:mac_addresses]
         )
 
