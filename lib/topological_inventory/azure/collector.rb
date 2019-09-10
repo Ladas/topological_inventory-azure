@@ -1,14 +1,13 @@
 require "concurrent"
-require "topological_inventory-ingress_api-client/collector"
+require "topological_inventory/providers/common/collector"
 require "topological_inventory/azure/connection"
 require "topological_inventory/azure/parser"
 require "topological_inventory/azure/iterator"
 require "topological_inventory/azure/logging"
-require "topological_inventory-ingress_api-client"
 
 module TopologicalInventory
   module Azure
-    class Collector < ::TopologicalInventoryIngressApiClient::Collector
+    class Collector < ::TopologicalInventory::Providers::Common::Collector
       include Logging
 
       require "topological_inventory/azure/collector/compute"

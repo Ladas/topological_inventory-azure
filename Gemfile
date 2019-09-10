@@ -13,6 +13,7 @@ gem "optimist"
 gem "prometheus_exporter", "~> 0.4.5"
 gem "rake"
 gem "topological_inventory-ingress_api-client", :git => "https://github.com/ManageIQ/topological_inventory-ingress_api-client-ruby", :branch => "master"
+gem "topological_inventory-providers-common",   :git => "https://github.com/ManageIQ/topological_inventory-providers-common", :branch => "master"
 
 group :test, :development do
   gem "rspec"
