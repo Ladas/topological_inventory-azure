@@ -228,18 +228,25 @@ RSpec.describe TopologicalInventory::Azure::Collector do
     expect(format_hash(:network_adapters, parser)).to(
       match_array(
         [
-          {:device      =>
-                           {:inventory_collection_name => :vms,
-                            :reference                 => {:source_ref => "vm_id_1"},
-                            :ref                       => :manager_ref},
-           :extra       =>
-                           {:name                          => "eth0",
-                            :provisioning_state            => nil,
-                            :enable_accelerated_networking => nil,
-                            :enable_ipforwarding           => nil},
-           :mac_address => "mac_addr_1",
-           :source_ref  => "interface_1"}
-        ]
+          {:device=>
+            {:inventory_collection_name=>:vms,
+             :reference=>{:source_ref=>"vm_id_1"},
+             :ref=>:manager_ref},
+          :extra=>
+            {:name=>"eth0",
+             :provisioning_state=>nil,
+             :enable_accelerated_networking=>nil,
+             :enable_ipforwarding=>nil},
+          :mac_address=>"mac_addr_1",
+          :source_ref=>"interface_1",
+          :source_region=>
+            {:inventory_collection_name=>:source_regions,
+             :reference=>{:source_ref=>"useast20"},
+             :ref=>:manager_ref},
+          :subscription=>
+            {:inventory_collection_name=>:subscriptions,
+             :reference=>{:source_ref=>"subscription1"},
+             :ref=>:manager_ref}}]
       )
     )
 
