@@ -5,7 +5,7 @@ if ENV['CI']
   SimpleCov.start
 end
 
-require "topological_inventory/azure/collector"
+require "topological_inventory/azure/collectors_pool"
 
 RSpec.configure do |config|
   # Disable RSpec exposing methods globally on `Module` and `main`

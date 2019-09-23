@@ -1,0 +1,13 @@
+# You can use *-dev.yml for your development sources
+sources:
+  - source: 31b5338b-685d-4056-ba39-d00b4d7f19cc
+    scheme:
+    host:
+    port:
+    path:
+  - source: a09b9785-0f71-4dcf-9f9d-de0f0478b09f
+    scheme:
+    host:
+    port:
+    path:
+:updated_at: '2019-08-07 11:41:49'
