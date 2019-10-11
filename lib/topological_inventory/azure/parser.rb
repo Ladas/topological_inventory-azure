@@ -1,19 +1,17 @@
-require "active_support/inflector"
-require "topological_inventory/azure/parser/flavor"
-require "topological_inventory/azure/parser/floating_ip"
-require "topological_inventory/azure/parser/network"
-require "topological_inventory/azure/parser/network_adapter"
-require "topological_inventory/azure/parser/security_group"
-require "topological_inventory/azure/parser/source_region"
-require "topological_inventory/azure/parser/vm"
-require "topological_inventory/azure/parser/volume"
-require "topological_inventory-ingress_api-client"
-require "topological_inventory-ingress_api-client/collector.rb"
-require "topological_inventory-ingress_api-client/collector/inventory_collection_storage.rb"
+require "topological_inventory/providers/common/collector/parser"
 
 module TopologicalInventory
   module Azure
-    class Parser
+    class Parser < TopologicalInventory::Providers::Common::Collector::Parser
+      require "topological_inventory/azure/parser/flavor"
+      require "topological_inventory/azure/parser/floating_ip"
+      require "topological_inventory/azure/parser/network"
+      require "topological_inventory/azure/parser/network_adapter"
+      require "topological_inventory/azure/parser/security_group"
+      require "topological_inventory/azure/parser/source_region"
+      require "topological_inventory/azure/parser/vm"
+      require "topological_inventory/azure/parser/volume"
+
       include Parser::Flavor
       include Parser::FloatingIp
       include Parser::Network
@@ -23,12 +21,11 @@ module TopologicalInventory
       include Parser::Vm
       include Parser::Volume
 
-      attr_accessor :connection, :collections, :resource_timestamp
+      attr_accessor :connection
 
       def initialize(connection = nil)
+        super()
         self.connection         = connection
-        self.resource_timestamp = Time.now.utc
-        self.collections = TopologicalInventoryIngressApiClient::Collector::InventoryCollectionStorage.new
       end
 
       private
@@ -36,14 +33,6 @@ module TopologicalInventory
       def archive_entity(inventory_object, entity)
         source_deleted_at                  = entity.metadata&.deletionTimestamp || Time.now.utc
         inventory_object.source_deleted_at = source_deleted_at
-      end
-
-      def lazy_find(collection, reference, ref: :manager_ref)
-        TopologicalInventoryIngressApiClient::InventoryObjectLazy.new(
-          :inventory_collection_name => collection,
-          :reference                 => reference,
-          :ref                       => ref
-        )
       end
     end
   end
