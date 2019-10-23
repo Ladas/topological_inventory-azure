@@ -1,9 +1,9 @@
-require "topological_inventory-ingress_api-client/collectors_pool"
+require "topological_inventory/providers/common/collectors_pool"
 require "topological_inventory/azure/collector"
 require "topological_inventory/azure/logging"
 
 module TopologicalInventory::Azure
-  class CollectorsPool < TopologicalInventoryIngressApiClient::CollectorsPool
+  class CollectorsPool < TopologicalInventory::Providers::Common::CollectorsPool
     include Logging
 
     def initialize(config_name, metrics, poll_time: 5)
