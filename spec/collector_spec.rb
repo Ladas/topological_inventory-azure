@@ -18,10 +18,6 @@ RSpec.describe TopologicalInventory::Azure::Collector do
            :name          => "Instance Name 1",
            :power_state   => "powering_down",
            :source_ref    => "instanceid1",
-           :source_region =>
-                             {:inventory_collection_name => :source_regions,
-                              :reference                 => {:source_ref => nil},
-                              :ref                       => :manager_ref},
            :subscription  =>
                              {:inventory_collection_name => :subscriptions,
                               :reference                 => {:source_ref => "subscription1"},
