@@ -37,6 +37,7 @@ module AzureStubs
               OpenStruct.new(:code => "PowerState/stopping")
             ]
           ),
+          :location => "location1",
           :storage_profile  => OpenStruct.new(
             :os_disk    => OpenStruct.new(
               :managed_disk => OpenStruct.new(
@@ -154,6 +155,7 @@ module AzureStubs
         :location               => "useast20",
         :ip_configurations      => [
           OpenStruct.new(
+            :id                => 'ip_1',
             :private_ipaddress => "10.10.10.1",
             :subnet            => OpenStruct.new(
               :id => "subnet_id_1"
@@ -162,6 +164,7 @@ module AzureStubs
             :primary           => true
           ),
           OpenStruct.new(
+            :id                => 'ip_2',
             :private_ipaddress => "11.10.10.1",
             :subnet            => OpenStruct.new(
               :id => "subnet_id_1"
