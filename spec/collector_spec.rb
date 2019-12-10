@@ -10,18 +10,25 @@ RSpec.describe TopologicalInventory::Azure::Collector do
     expect(format_hash(:vms, parser)).to(
       match_array(
         [
-          {:flavor        =>
-                             {:inventory_collection_name => :flavors,
-                              :reference                 => {:source_ref => "flavor_1"},
-                              :ref                       => :manager_ref},
+          {:flavor        => {
+            :inventory_collection_name => :flavors,
+            :reference                 => {:source_ref => "flavor_1"},
+            :ref                       => :manager_ref
+          },
            :mac_addresses => ["macadr1"],
            :name          => "Instance Name 1",
            :power_state   => "powering_down",
            :source_ref    => "instanceid1",
-           :subscription  =>
-                             {:inventory_collection_name => :subscriptions,
-                              :reference                 => {:source_ref => "subscription1"},
-                              :ref                       => :manager_ref},
+           :source_region => {
+             :inventory_collection_name => :source_regions,
+             :reference                 => {:source_ref => 'location1'},
+             :ref                       => :manager_ref
+           },
+           :subscription  => {
+             :inventory_collection_name => :subscriptions,
+             :reference                 => {:source_ref => "subscription1"},
+             :ref                       => :manager_ref
+           },
            :uid_ems       => "instanceid1"}
         ]
       )
@@ -37,7 +44,9 @@ RSpec.describe TopologicalInventory::Azure::Collector do
            :volume =>
                       {:inventory_collection_name => :volumes,
                        :reference                 => {:source_ref => "managed_os_disk_id_1"},
-                       :ref                       => :manager_ref}},
+                       :ref                       => :manager_ref},
+           :device => nil,
+           :state  => nil},
           {:vm     =>
                       {:inventory_collection_name => :vms,
                        :reference                 => {:source_ref => "instanceid1"},
@@ -45,7 +54,9 @@ RSpec.describe TopologicalInventory::Azure::Collector do
            :volume =>
                       {:inventory_collection_name => :volumes,
                        :reference                 => {:source_ref => "managed_disk_id_1"},
-                       :ref                       => :manager_ref}},
+                       :ref                       => :manager_ref},
+           :device => nil,
+           :state  => nil},
           {:vm     =>
                       {:inventory_collection_name => :vms,
                        :reference                 => {:source_ref => "instanceid1"},
@@ -53,7 +64,9 @@ RSpec.describe TopologicalInventory::Azure::Collector do
            :volume =>
                       {:inventory_collection_name => :volumes,
                        :reference                 => {:source_ref => "unmanaged_disk_uri_1"},
-                       :ref                       => :manager_ref}}
+                       :ref                       => :manager_ref},
+           :device => nil,
+           :state  => nil}
         ]
       )
     )
@@ -114,17 +127,19 @@ RSpec.describe TopologicalInventory::Azure::Collector do
                                  {:inventory_collection_name => :subscriptions,
                                   :reference                 => {:source_ref => "subscription1"},
                                   :ref                       => :manager_ref}},
-          {:name          => "my_blob",
-           :size          => 32212254720,
-           :source_ref    => "https://my.blob.azure.com/unmanaged_storage_container/my_blob",
-           :source_region =>
-                             {:inventory_collection_name => :source_regions,
-                              :reference                 => {:source_ref => "useast20"},
-                              :ref                       => :manager_ref},
-           :subscription  =>
-                             {:inventory_collection_name => :subscriptions,
-                              :reference                 => {:source_ref => "subscription1"},
-                              :ref                       => :manager_ref}}
+          {:name              => "my_blob",
+           :size              => 32212254720,
+           :source_created_at => nil,
+           :state             => nil,
+           :source_ref        => "https://my.blob.azure.com/unmanaged_storage_container/my_blob",
+           :source_region     =>
+                                 {:inventory_collection_name => :source_regions,
+                                  :reference                 => {:source_ref => "useast20"},
+                                  :ref                       => :manager_ref},
+           :subscription      =>
+                                 {:inventory_collection_name => :subscriptions,
+                                  :reference                 => {:source_ref => "subscription1"},
+                                  :ref                       => :manager_ref}}
         ]
       )
     )
@@ -136,7 +151,7 @@ RSpec.describe TopologicalInventory::Azure::Collector do
     expect(format_hash(:source_regions, parser)).to(
       match_array(
         [
-          {:name => "Nice east of the US sector 20", :source_ref => "useast20"}
+          {:endpoint => nil, :name => "Nice east of the US sector 20", :source_ref => "useast20"}
         ]
       )
     )
@@ -172,21 +187,23 @@ RSpec.describe TopologicalInventory::Azure::Collector do
     expect(format_hash(:networks, parser)).to(
       match_array(
         [
-          {:extra         =>
-                             {:enable_ddos_protection => nil,
-                              :enable_vm_protection   => nil,
-                              :address_space          => nil},
-           :name          => "network name",
-           :source_ref    => "network_id",
-           :source_region =>
-                             {:inventory_collection_name => :source_regions,
-                              :reference                 => {:source_ref => "useast20"},
-                              :ref                       => :manager_ref},
-           :status        => "active",
-           :subscription  =>
-                             {:inventory_collection_name => :subscriptions,
-                              :reference                 => {:source_ref => "subscription1"},
-                              :ref                       => :manager_ref}}
+          {:cidr                => nil,
+           :extra               =>
+                                   {:enable_ddos_protection => nil,
+                                    :enable_vm_protection   => nil,
+                                    :address_space          => nil},
+           :name                => "network name",
+           :orchestration_stack => nil,
+           :source_ref          => "network_id",
+           :source_region       =>
+                                   {:inventory_collection_name => :source_regions,
+                                    :reference                 => {:source_ref => "useast20"},
+                                    :ref                       => :manager_ref},
+           :status              => "active",
+           :subscription        =>
+                                   {:inventory_collection_name => :subscriptions,
+                                    :reference                 => {:source_ref => "subscription1"},
+                                    :ref                       => :manager_ref}}
         ]
       )
     )
@@ -194,25 +211,26 @@ RSpec.describe TopologicalInventory::Azure::Collector do
     expect(format_hash(:subnets, parser)).to(
       match_array(
         [
-          {:cidr          => "10.10.10.10/30",
-           :extra         =>
-                             {:private_endpoint_network_policies     => nil,
-                              :private_link_service_network_policies => nil},
-           :name          => "subnet1",
-           :network       =>
-                             {:inventory_collection_name => :networks,
-                              :reference                 => {:source_ref => "network_id"},
-                              :ref                       => :manager_ref},
-           :source_ref    => "subnet1_id",
-           :source_region =>
-                             {:inventory_collection_name => :source_regions,
-                              :reference                 => {:source_ref => "useast20"},
-                              :ref                       => :manager_ref},
-           :status        => "Succeeded",
-           :subscription  =>
-                             {:inventory_collection_name => :subscriptions,
-                              :reference                 => {:source_ref => "subscription1"},
-                              :ref                       => :manager_ref}}
+          {:cidr                => "10.10.10.10/30",
+           :extra               =>
+                                   {:private_endpoint_network_policies     => nil,
+                                    :private_link_service_network_policies => nil},
+           :name                => "subnet1",
+           :network             =>
+                                   {:inventory_collection_name => :networks,
+                                    :reference                 => {:source_ref => "network_id"},
+                                    :ref                       => :manager_ref},
+           :orchestration_stack => nil,
+           :source_ref          => "subnet1_id",
+           :source_region       =>
+                                   {:inventory_collection_name => :source_regions,
+                                    :reference                 => {:source_ref => "useast20"},
+                                    :ref                       => :manager_ref},
+           :status              => "Succeeded",
+           :subscription        =>
+                                   {:inventory_collection_name => :subscriptions,
+                                    :reference                 => {:source_ref => "subscription1"},
+                                    :ref                       => :manager_ref}}
         ]
       )
     )
@@ -224,25 +242,27 @@ RSpec.describe TopologicalInventory::Azure::Collector do
     expect(format_hash(:network_adapters, parser)).to(
       match_array(
         [
-          {:device=>
-            {:inventory_collection_name=>:vms,
-             :reference=>{:source_ref=>"vm_id_1"},
-             :ref=>:manager_ref},
-          :extra=>
-            {:name=>"eth0",
-             :provisioning_state=>nil,
-             :enable_accelerated_networking=>nil,
-             :enable_ipforwarding=>nil},
-          :mac_address=>"mac_addr_1",
-          :source_ref=>"interface_1",
-          :source_region=>
-            {:inventory_collection_name=>:source_regions,
-             :reference=>{:source_ref=>"useast20"},
-             :ref=>:manager_ref},
-          :subscription=>
-            {:inventory_collection_name=>:subscriptions,
-             :reference=>{:source_ref=>"subscription1"},
-             :ref=>:manager_ref}}]
+          {:device              =>
+                                   {:inventory_collection_name => :vms,
+                                    :reference                 => {:source_ref => "vm_id_1"},
+                                    :ref                       => :manager_ref},
+           :extra               =>
+                                   {:name                          => "eth0",
+                                    :provisioning_state            => nil,
+                                    :enable_accelerated_networking => nil,
+                                    :enable_ipforwarding           => nil},
+           :mac_address         => "mac_addr_1",
+           :orchestration_stack => nil,
+           :source_ref          => "interface_1",
+           :source_region       =>
+                                   {:inventory_collection_name => :source_regions,
+                                    :reference                 => {:source_ref => "useast20"},
+                                    :ref                       => :manager_ref},
+           :subscription        =>
+                                   {:inventory_collection_name => :subscriptions,
+                                    :reference                 => {:source_ref => "subscription1"},
+                                    :ref                       => :manager_ref}}
+        ]
       )
     )
 
@@ -265,78 +285,81 @@ RSpec.describe TopologicalInventory::Azure::Collector do
       match_array(
         [
           {:extra           =>
-                               {:primary                     => true,
-                                :name                        => "ip1",
-                                :provisioning_state          => nil,
-                                :private_ipaddress_version   => nil,
-                                :private_ipallocation_method => nil},
+             {:primary                     => true,
+              :name                        => "ip1",
+              :provisioning_state          => nil,
+              :private_ipaddress_version   => nil,
+              :private_ipallocation_method => nil},
            :ipaddress       => "10.10.10.1",
            :kind            => "private",
            :network_adapter =>
-                               {:inventory_collection_name => :network_adapters,
-                                :reference                 => {:source_ref => "interface_1"},
-                                :ref                       => :manager_ref},
+             {:inventory_collection_name => :network_adapters,
+              :reference                 => {:source_ref => "interface_1"},
+              :ref                       => :manager_ref},
+           :source_ref      => "ip_1",
            :source_region   =>
-                               {:inventory_collection_name => :source_regions,
-                                :reference                 => {:source_ref => "useast20"},
-                                :ref                       => :manager_ref},
+             {:inventory_collection_name => :source_regions,
+              :reference                 => {:source_ref => "useast20"},
+              :ref                       => :manager_ref},
            :subnet          =>
-                               {:inventory_collection_name => :subnets,
-                                :reference                 => {:source_ref => "subnet_id_1"},
-                                :ref                       => :manager_ref},
+             {:inventory_collection_name => :subnets,
+              :reference                 => {:source_ref => "subnet_id_1"},
+              :ref                       => :manager_ref},
            :subscription    =>
-                               {:inventory_collection_name => :subscriptions,
-                                :reference                 => {:source_ref => "subscription1"},
-                                :ref                       => :manager_ref}},
+             {:inventory_collection_name => :subscriptions,
+              :reference                 => {:source_ref => "subscription1"},
+              :ref                       => :manager_ref}},
           {:extra           =>
-                               {:primary                     => false,
-                                :name                        => "ip2",
-                                :provisioning_state          => nil,
-                                :private_ipaddress_version   => nil,
-                                :private_ipallocation_method => nil},
+             {:primary                     => false,
+              :name                        => "ip2",
+              :provisioning_state          => nil,
+              :private_ipaddress_version   => nil,
+              :private_ipallocation_method => nil},
            :ipaddress       => "11.10.10.1",
            :kind            => "private",
            :network_adapter =>
-                               {:inventory_collection_name => :network_adapters,
-                                :reference                 => {:source_ref => "interface_1"},
-                                :ref                       => :manager_ref},
+             {:inventory_collection_name => :network_adapters,
+              :reference                 => {:source_ref => "interface_1"},
+              :ref                       => :manager_ref},
+           :source_ref      => "ip_2",
            :source_region   =>
-                               {:inventory_collection_name => :source_regions,
-                                :reference                 => {:source_ref => "useast20"},
-                                :ref                       => :manager_ref},
+             {:inventory_collection_name => :source_regions,
+              :reference                 => {:source_ref => "useast20"},
+              :ref                       => :manager_ref},
            :subnet          =>
-                               {:inventory_collection_name => :subnets,
-                                :reference                 => {:source_ref => "subnet_id_1"},
-                                :ref                       => :manager_ref},
+             {:inventory_collection_name => :subnets,
+              :reference                 => {:source_ref => "subnet_id_1"},
+              :ref                       => :manager_ref},
            :subscription    =>
-                               {:inventory_collection_name => :subscriptions,
-                                :reference                 => {:source_ref => "subscription1"},
-                                :ref                       => :manager_ref}},
-          {:extra           =>
-                               {:name                       => "floating_ip_name_1",
-                                :provisioning_state         => nil,
-                                :public_ipaddress_version   => nil,
-                                :public_ipallocation_method => nil,
-                                :resource_guid              => nil,
-                                :type                       => nil,
-                                :idle_timeout_in_minutes    => nil},
-           :ipaddress       => "10.10.10.3",
-           :kind            => "elastic",
-           :network_adapter =>
-                               {:inventory_collection_name => :network_adapters,
-                                :reference                 =>
-                                                              {:source_ref =>
-                                                                              "/subscriptions/guid/resourceGroups/resource_group_name/providers/Microsoft.Network/networkInterfaces/vm1nic1"},
-                                :ref                       => :manager_ref},
-           :source_ref      => "floating_ip_id_1",
-           :source_region   =>
-                               {:inventory_collection_name => :source_regions,
-                                :reference                 => {:source_ref => "useast20"},
-                                :ref                       => :manager_ref},
-           :subscription    =>
-                               {:inventory_collection_name => :subscriptions,
-                                :reference                 => {:source_ref => "subscription1"},
-                                :ref                       => :manager_ref}}
+             {:inventory_collection_name => :subscriptions,
+              :reference                 => {:source_ref => "subscription1"},
+              :ref                       => :manager_ref}},
+          {:extra               =>
+             {:name                       => "floating_ip_name_1",
+              :provisioning_state         => nil,
+              :public_ipaddress_version   => nil,
+              :public_ipallocation_method => nil,
+              :resource_guid              => nil,
+              :type                       => nil,
+              :idle_timeout_in_minutes    => nil},
+           :ipaddress           => "10.10.10.3",
+           :kind                => "elastic",
+           :network_adapter     =>
+             {:inventory_collection_name => :network_adapters,
+              :reference                 =>
+                {:source_ref =>
+                   "/subscriptions/guid/resourceGroups/resource_group_name/providers/Microsoft.Network/networkInterfaces/vm1nic1"},
+              :ref                       => :manager_ref},
+           :orchestration_stack => nil,
+           :source_ref          => "floating_ip_id_1",
+           :source_region       =>
+             {:inventory_collection_name => :source_regions,
+              :reference                 => {:source_ref => "useast20"},
+              :ref                       => :manager_ref},
+           :subscription        =>
+             {:inventory_collection_name => :subscriptions,
+              :reference                 => {:source_ref => "subscription1"},
+              :ref                       => :manager_ref}}
         ]
       )
     )
@@ -371,17 +394,20 @@ RSpec.describe TopologicalInventory::Azure::Collector do
     expect(format_hash(:security_groups, parser)).to(
       match_array(
         [
-          {:extra         => {:provisioning_state => "Succeeded"},
-           :name          => "security_group_name_1",
-           :source_ref    => "security_group_id_1",
-           :source_region =>
-                             {:inventory_collection_name => :source_regions,
-                              :reference                 => {:source_ref => "useast20"},
-                              :ref                       => :manager_ref},
-           :subscription  =>
-                             {:inventory_collection_name => :subscriptions,
-                              :reference                 => {:source_ref => "subscription1"},
-                              :ref                       => :manager_ref}}
+          {:description         => nil,
+           :extra               => {:provisioning_state => "Succeeded"},
+           :name                => "security_group_name_1",
+           :network_id          => nil, # TODO: should be :network
+           :orchestration_stack => nil,
+           :source_ref          => "security_group_id_1",
+           :source_region       =>
+             {:inventory_collection_name => :source_regions,
+              :reference                 => {:source_ref => "useast20"},
+              :ref                       => :manager_ref},
+           :subscription        =>
+             {:inventory_collection_name => :subscriptions,
+              :reference                 => {:source_ref => "subscription1"},
+              :ref                       => :manager_ref}}
         ]
       )
     )

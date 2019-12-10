@@ -15,7 +15,8 @@ module TopologicalInventory::Azure
           :subscription        => lazy_find(:subscriptions, :source_ref => scope[:subscription_id]),
           :source_region       => lazy_find(:source_regions, :source_ref => sg.location),
           :orchestration_stack => nil,
-          :network             => nil
+          # TODO: Probably err in  openapi.json, should be :network => nil
+          :network_id          => nil
         )
 
         parse_security_group_tags(sg.id, sg.tags)

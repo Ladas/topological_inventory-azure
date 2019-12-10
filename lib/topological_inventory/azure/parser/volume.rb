@@ -35,7 +35,8 @@ module TopologicalInventory::Azure
           :name              => data[:blob].name || uri,
           :state             => nil, # TODO: options here are .lease_status and .lease_state
           :source_created_at => nil,
-          :source_updated_at => data[:blob].properties[:last_modified],
+          # TODO(mslemr) migration to db first
+          #:source_updated_at => data[:blob].properties[:last_modified],
           :size              => data[:blob].properties[:content_length],
           :source_region     => lazy_find(:source_regions, :source_ref => data[:storage_account].location),
           :subscription      => lazy_find(:subscriptions, :source_ref => scope[:subscription_id])
