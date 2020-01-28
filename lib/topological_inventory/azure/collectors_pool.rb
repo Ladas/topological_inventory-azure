@@ -6,7 +6,7 @@ module TopologicalInventory::Azure
   class CollectorsPool < TopologicalInventory::Providers::Common::CollectorsPool
     include Logging
 
-    def initialize(config_name, metrics, poll_time: 5)
+    def initialize(config_name, metrics)
       super
     end
 
@@ -29,7 +29,7 @@ module TopologicalInventory::Azure
     end
 
     def new_collector(source, secret)
-      TopologicalInventory::Azure::Collector.new(source.source, secret['username'], secret['password'], secret['tenant_id'], metrics)
+      TopologicalInventory::Azure::Collector.new(source.source, secret['username'], secret['password'], secret['tenant_id'], metrics, :standalone_mode => false)
     end
   end
 end

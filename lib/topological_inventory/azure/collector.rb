@@ -16,10 +16,12 @@ module TopologicalInventory
       include Azure::Collector::Compute
       include Azure::Collector::Network
 
-      def initialize(source, client_id, client_secret, tenant_id, metrics, default_limit: 1_000, poll_time: 5)
+      def initialize(source, client_id, client_secret, tenant_id, metrics,
+                     default_limit: 1_000, poll_time: 30, standalone_mode: true)
         super(source,
-              :default_limit => default_limit,
-              :poll_time     => poll_time)
+              :default_limit   => default_limit,
+              :poll_time       => poll_time,
+              :standalone_mode => standalone_mode)
 
         self.client_id     = client_id
         self.client_secret = client_secret
@@ -37,7 +39,7 @@ module TopologicalInventory
             logger.error(e)
             metrics.record_error
           ensure
-            sleep(30)
+            standalone_mode ? sleep(poll_time) : stop
           end
         end
       end
