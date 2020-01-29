@@ -397,7 +397,7 @@ RSpec.describe TopologicalInventory::Azure::Collector do
           {:description         => nil,
            :extra               => {:provisioning_state => "Succeeded"},
            :name                => "security_group_name_1",
-           :network_id          => nil, # TODO: should be :network
+           :network             => nil,
            :orchestration_stack => nil,
            :source_ref          => "security_group_id_1",
            :source_region       =>
