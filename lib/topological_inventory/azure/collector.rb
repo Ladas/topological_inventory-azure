@@ -53,27 +53,28 @@ module TopologicalInventory
         total_parts = 0
         sweep_scope = Set.new([entity_type.to_sym])
 
-        refresh_state_uuid = SecureRandom.uuid
+        refresh_state_uuid, refresh_state_started_at = SecureRandom.uuid, Time.now.utc
         logger.info("Collecting #{entity_type} with :refresh_state_uuid => '#{refresh_state_uuid}'...")
 
         count = 0
+        refresh_state_part_collected_at = nil
 
         all_subscriptions_connection.subscriptions.list.each do |subscription|
           scope = {:subscription_id => subscription.subscription_id}
 
           # Collect, parse and save entity data
-          parser, count, total_parts, sweep_scope = save_entity(entity_type, refresh_state_uuid, parser, scope, count, total_parts, sweep_scope)
+          parser, count, total_parts, sweep_scope, refresh_state_part_collected_at = save_entity(entity_type, refresh_state_uuid, parser, scope, count, total_parts, sweep_scope, refresh_state_part_collected_at)
 
           # Collect, parse and save related entities data, if there are any
           (related_entities[entity_type.to_sym] || []).each do |related_entity_type|
-            parser, count, total_parts, sweep_scope = save_entity(related_entity_type, refresh_state_uuid, parser, scope, count, total_parts, sweep_scope)
+            parser, count, total_parts, sweep_scope, refresh_state_part_collected_at = save_entity(related_entity_type, refresh_state_uuid, parser, scope, count, total_parts, sweep_scope, refresh_state_part_collected_at)
           end
         end
 
         if count > 0
           # Save the rest
           refresh_state_part_uuid = SecureRandom.uuid
-          total_parts += save_inventory(parser.collections.values, inventory_name, schema_name, refresh_state_uuid, refresh_state_part_uuid)
+          total_parts += save_inventory(parser.collections.values, inventory_name, schema_name, refresh_state_uuid, refresh_state_part_uuid, refresh_state_part_collected_at)
           sweep_scope.merge(parser.collections.values.map(&:name))
         end
 
@@ -82,28 +83,29 @@ module TopologicalInventory
         sweep_scope = sweep_scope.to_a
         logger.info("Sweeping inactive records for #{sweep_scope} with :refresh_state_uuid => '#{refresh_state_uuid}'...")
 
-        sweep_inventory(inventory_name, schema_name, refresh_state_uuid, total_parts, sweep_scope)
+        sweep_inventory(inventory_name, schema_name, refresh_state_uuid, total_parts, sweep_scope, refresh_state_started_at)
 
         logger.info("Sweeping inactive records for #{sweep_scope} with :refresh_state_uuid => '#{refresh_state_uuid}'...Complete")
       end
 
       # Collect, parse and save entity data
-      def save_entity(entity_type, refresh_state_uuid, parser, scope, count, total_parts, sweep_scope)
+      def save_entity(entity_type, refresh_state_uuid, parser, scope, count, total_parts, sweep_scope, refresh_state_part_collected_at)
         send(entity_type.to_s, scope).each do |entity|
+          refresh_state_part_collected_at = Time.now.utc
           count += 1
           parser.send("parse_#{entity_type}", entity, scope)
 
           if count >= limits[entity_type]
             count                   = 0
             refresh_state_part_uuid = SecureRandom.uuid
-            total_parts             += save_inventory(parser.collections.values, inventory_name, schema_name, refresh_state_uuid, refresh_state_part_uuid)
+            total_parts             += save_inventory(parser.collections.values, inventory_name, schema_name, refresh_state_uuid, refresh_state_part_uuid, refresh_state_part_collected_at)
             sweep_scope.merge(parser.collections.values.map(&:name))
 
             parser = create_parser
           end
         end
 
-        return parser, count, total_parts, sweep_scope
+        return parser, count, total_parts, sweep_scope, refresh_state_part_collected_at
       end
 
       # Entities that should be always refreshed and sweeped together, e.g. if by scanning Vms, we're also creating
