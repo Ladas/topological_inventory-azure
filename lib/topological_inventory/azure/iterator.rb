@@ -13,7 +13,7 @@ module TopologicalInventory::Azure
         yield(entity)
       end
     rescue StandardError => e
-      log.warn("#{error_message}. Message: #{e.message}")
+      log.error("#{error_message}. Message: #{e.message} #{e.backtrace.join('/n')}")
       []
     end
   end
