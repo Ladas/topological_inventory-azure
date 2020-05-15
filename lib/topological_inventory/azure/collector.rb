@@ -35,9 +35,6 @@ module TopologicalInventory
             entity_types.each do |entity_type|
               process_entity(entity_type)
             end
-          rescue StandardError => e
-            logger.error(e)
-            metrics.record_error
           ensure
             standalone_mode ? sleep(poll_time) : stop
           end
@@ -49,15 +46,12 @@ module TopologicalInventory
       attr_accessor :log, :metrics, :client_id, :client_secret, :tenant_id
 
       def process_entity(entity_type)
+        refresh_state_uuid, refresh_state_started_at, refresh_state_part_collected_at = SecureRandom.uuid, Time.now.utc, nil
+
+        logger.collecting(:start, source, entity_type, refresh_state_uuid)
         parser      = create_parser
-        total_parts = 0
-        sweep_scope = Set.new([entity_type.to_sym])
 
-        refresh_state_uuid, refresh_state_started_at = SecureRandom.uuid, Time.now.utc
-        logger.info("Collecting #{entity_type} with :refresh_state_uuid => '#{refresh_state_uuid}'...")
-
-        count = 0
-        refresh_state_part_collected_at = nil
+        count, total_parts, sweep_scope = 0, 0, Set.new([entity_type.to_sym])
 
         all_subscriptions_connection.subscriptions.list.each do |subscription|
           scope = {:subscription_id => subscription.subscription_id}
@@ -77,15 +71,15 @@ module TopologicalInventory
           total_parts += save_inventory(parser.collections.values, inventory_name, schema_name, refresh_state_uuid, refresh_state_part_uuid, refresh_state_part_collected_at)
           sweep_scope.merge(parser.collections.values.map(&:name))
         end
-
-        logger.info("Collecting #{entity_type} with :refresh_state_uuid => '#{refresh_state_uuid}'...Complete - Parts [#{total_parts}]")
+        logger.collecting(:finish, source, entity_type, refresh_state_uuid, total_parts)
 
         sweep_scope = sweep_scope.to_a
-        logger.info("Sweeping inactive records for #{sweep_scope} with :refresh_state_uuid => '#{refresh_state_uuid}'...")
-
+        logger.sweeping(:start, source, sweep_scope, refresh_state_uuid)
         sweep_inventory(inventory_name, schema_name, refresh_state_uuid, total_parts, sweep_scope, refresh_state_started_at)
-
-        logger.info("Sweeping inactive records for #{sweep_scope} with :refresh_state_uuid => '#{refresh_state_uuid}'...Complete")
+        logger.sweeping(:finish, source, sweep_scope, refresh_state_uuid)
+      rescue => e
+        metrics.record_error
+        logger.collecting_error(source, entity_type, refresh_state_uuid, e)
       end
 
       # Collect, parse and save entity data
