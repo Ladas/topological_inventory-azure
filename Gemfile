@@ -21,6 +21,8 @@ group :test, :development do
   gem "rspec"
   gem "simplecov"
   gem "webmock"
+  gem 'rubocop',             '~>0.69.0', :require => false
+  gem 'rubocop-performance', '~>1.3',    :require => false
 end
 
 gem "azure_mgmt_compute", "~>0.18.7"
