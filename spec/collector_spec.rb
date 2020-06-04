@@ -130,6 +130,7 @@ RSpec.describe TopologicalInventory::Azure::Collector do
           {:name              => "my_blob",
            :size              => 32212254720,
            :source_created_at => nil,
+           :source_updated_at => "2012-12-12 20:20",
            :state             => nil,
            :source_ref        => "https://my.blob.azure.com/unmanaged_storage_container/my_blob",
            :source_region     =>
