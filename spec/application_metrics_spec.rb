@@ -4,7 +4,13 @@ require "net/http"
 
 RSpec.describe TopologicalInventory::Azure::Collector::ApplicationMetrics do
   subject! { described_class.new(9394) }
-  after    { subject.stop_server }
+  around do |spec|
+    WebMock.disable!
+    spec.run
+    WebMock.enable!
+  end
+
+  after { subject.stop_server }
 
   context "Turned on" do
     it "exposes metrics" do
