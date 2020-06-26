@@ -10,7 +10,7 @@ module TopologicalInventory
 
         private
 
-        def connection_check(source_id)
+        def connection_check
           TopologicalInventory::Azure::Connection.all_subscriptions(
             :client_id     => authentication.username,
             :client_secret => authentication.password,
