@@ -7,7 +7,7 @@ gem "activesupport", '~> 5.2.4.3'
 gem "cloudwatchlogger", "~> 0.2"
 gem "concurrent-ruby"
 gem "manageiq-loggers", "~> 0.5.0"
-gem 'manageiq-messaging'
+gem 'manageiq-messaging', '~> 0.1.2'
 gem "more_core_extensions"
 gem "optimist"
 gem "prometheus_exporter", "~> 0.4.5"
