@@ -14,7 +14,7 @@ module TopologicalInventory
           TopologicalInventory::Azure::Connection.all_subscriptions(
             :client_id     => authentication.username,
             :client_secret => authentication.password,
-            :tenant_id     => authentication.extra&.dig("azure", "tenant_id")
+            :tenant_id     => authentication.extra&.azure&.tenant_id
           )
 
           [STATUS_AVAILABLE, nil]
