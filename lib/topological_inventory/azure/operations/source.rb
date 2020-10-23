@@ -24,7 +24,7 @@ module TopologicalInventory
         end
 
         def authentication
-          @authentication ||= api_client.fetch_authentication(source_id, endpoint, 'tenant_id_client_id_client_secret')
+          @authentication ||= sources_api.fetch_authentication(source_id, endpoint, 'tenant_id_client_id_client_secret')
         end
       end
     end
