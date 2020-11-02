@@ -1,6 +1,7 @@
 require "topological_inventory/azure/logging"
 require "topological_inventory/azure/operations/processor"
 require "topological_inventory/azure/operations/source"
+require "topological_inventory/providers/common/mixins/statuses"
 require "topological_inventory/providers/common/operations/health_check"
 
 module TopologicalInventory
@@ -8,9 +9,11 @@ module TopologicalInventory
     module Operations
       class Worker
         include Logging
+        include TopologicalInventory::Providers::Common::Mixins::Statuses
 
-        def initialize(messaging_client_opts = {})
-          self.messaging_client_opts = default_messaging_opts.merge(messaging_client_opts)
+        def initialize(host:, port:, metrics:)
+          self.messaging_client_opts = default_messaging_opts.merge(:host => host, :port => port)
+          self.metrics               = metrics
         end
 
         def run
@@ -28,13 +31,14 @@ module TopologicalInventory
 
         private
 
-        attr_accessor :messaging_client_opts
+        attr_accessor :messaging_client_opts, :metrics
 
         def process_message(message)
-          Processor.process!(message)
+          result = Processor.process!(message, metrics)
+          metrics&.record_operation(message.message, :status => result)
         rescue => e
           logger.error("#{e}\n#{e.backtrace.join("\n")}")
-          raise
+          metrics&.record_operation(message.message, :status => operation_status[:error])
         ensure
           message.ack
           TopologicalInventory::Providers::Common::Operations::HealthCheck.touch_file

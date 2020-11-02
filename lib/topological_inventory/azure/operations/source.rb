@@ -23,8 +23,13 @@ module TopologicalInventory
           [STATUS_UNAVAILABLE, e.message]
         end
 
+        # called only for endpoint_connection_check()
         def authentication
           @authentication ||= sources_api.fetch_authentication(source_id, endpoint, 'tenant_id_client_id_client_secret')
+        rescue => e
+          metrics&.record_error(:sources_api)
+          logger.error_ext(operation, "Failed to fetch Authentication for Source #{source_id}: #{e.message}")
+          nil
         end
       end
     end
