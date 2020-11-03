@@ -43,7 +43,15 @@ Signal.trap("TERM") do
   exit
 end
 
-operations_worker = TopologicalInventory::Azure::Operations::Worker.new(:host    => args[:queue_host],
-                                                                        :metrics => metrics,
-                                                                        :port    => args[:queue_port])
-operations_worker.run
+TopologicalInventory::Azure::MessagingClient.configure do |config|
+  config.queue_host = args[:queue_host]
+  config.queue_port = args[:queue_port]
+end
+
+begin
+  operations_worker = TopologicalInventory::Azure::Operations::Worker.new(:metrics => metrics)
+  operations_worker.run
+rescue => err
+  puts err
+  raise
+end
