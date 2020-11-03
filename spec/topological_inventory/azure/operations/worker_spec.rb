@@ -6,11 +6,11 @@ RSpec.describe TopologicalInventory::Azure::Operations::Worker do
     let(:message) { double("ManageIQ::Messaging::ReceivedMessage") }
     let(:metrics) { double("Metrics", :record_operation => nil) }
     let(:operation) { 'Test.operation' }
-    let(:subject) { described_class.new(:host => 'localhost', :port => 9092, :metrics => metrics) }
+    let(:subject) { described_class.new(:metrics => metrics) }
 
     before do
-      require "manageiq-messaging"
-      allow(ManageIQ::Messaging::Client).to receive(:open).and_return(client)
+      TopologicalInventory::Azure::MessagingClient.class_variable_set(:@@default, nil)
+      allow(subject).to receive(:client).and_return(client)
       allow(client).to receive(:close)
       allow(TopologicalInventory::Providers::Common::Operations::HealthCheck).to receive(:touch_file)
       allow(message).to receive_messages(:ack => nil, :message => operation)
