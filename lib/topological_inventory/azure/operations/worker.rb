@@ -12,7 +12,7 @@ module TopologicalInventory
         include Logging
         include TopologicalInventory::Providers::Common::Mixins::Statuses
 
-        def initialize(metrics:)
+        def initialize(metrics)
           self.metrics = metrics
         end
 

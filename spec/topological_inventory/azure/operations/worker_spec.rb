@@ -6,7 +6,7 @@ RSpec.describe TopologicalInventory::Azure::Operations::Worker do
     let(:message) { double("ManageIQ::Messaging::ReceivedMessage") }
     let(:metrics) { double("Metrics", :record_operation => nil) }
     let(:operation) { 'Test.operation' }
-    let(:subject) { described_class.new(:metrics => metrics) }
+    let(:subject) { described_class.new(metrics) }
 
     before do
       TopologicalInventory::Azure::MessagingClient.class_variable_set(:@@default, nil)

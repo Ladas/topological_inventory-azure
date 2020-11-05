@@ -49,7 +49,7 @@ TopologicalInventory::Azure::MessagingClient.configure do |config|
 end
 
 begin
-  operations_worker = TopologicalInventory::Azure::Operations::Worker.new(:metrics => metrics)
+  operations_worker = TopologicalInventory::Azure::Operations::Worker.new(metrics)
   operations_worker.run
 rescue => err
   puts err
