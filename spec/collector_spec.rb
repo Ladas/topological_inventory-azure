@@ -1,4 +1,4 @@
-require "topological_inventory/azure/collector/application_metrics"
+require "topological_inventory/azure/collector/metrics"
 require_relative 'azure_stubs'
 
 RSpec.describe TopologicalInventory::Azure::Collector do
@@ -431,7 +431,7 @@ RSpec.describe TopologicalInventory::Azure::Collector do
 
   def collect_and_parse(entity)
     parser  = TopologicalInventory::Azure::Parser.new
-    metrics = instance_double(TopologicalInventory::Azure::Collector::ApplicationMetrics,
+    metrics = instance_double(TopologicalInventory::Azure::Collector::Metrics,
                               :record_error => nil)
 
     collector = TopologicalInventory::Azure::Collector.new(
