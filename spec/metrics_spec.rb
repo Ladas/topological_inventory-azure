@@ -19,7 +19,7 @@ RSpec.describe TopologicalInventory::Azure::Collector::Metrics do
       subject.record_error(err_type)
 
       metrics = get_metrics
-      expect(metrics["topological_inventory_azure_collector_error{type=\"#{err_type}\"}"]).to eq("2")
+      expect(metrics["topological_inventory_azure_collector_errors_total{type=\"#{err_type}\"}"]).to eq("2")
     end
 
     def get_metrics
