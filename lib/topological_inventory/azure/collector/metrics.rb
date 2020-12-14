@@ -4,6 +4,8 @@ module TopologicalInventory
   module Azure
     class Collector
       class Metrics < TopologicalInventory::Providers::Common::Metrics
+        ERROR_TYPES = %i[general].freeze
+
         def initialize(port = 9394)
           super(port)
         end
