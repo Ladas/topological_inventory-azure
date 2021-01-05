@@ -8,7 +8,7 @@ STDOUT.sync = true
 require "bundler/setup"
 require "topological_inventory/azure/collector"
 require "topological_inventory/azure/collectors_pool"
-require "topological_inventory/azure/collector/application_metrics"
+require "topological_inventory/azure/collector/metrics"
 
 def parse_args
   require 'optimist'
@@ -53,17 +53,19 @@ ingress_api_uri = URI(args[:ingress_api])
 TopologicalInventoryIngressApiClient.configure.scheme = ingress_api_uri.scheme || "http"
 TopologicalInventoryIngressApiClient.configure.host   = "#{ingress_api_uri.host}:#{ingress_api_uri.port}"
 
-begin
-  metrics = TopologicalInventory::Azure::Collector::ApplicationMetrics.new(args[:metrics_port])
-  if args[:config].nil?
-    collector = TopologicalInventory::Azure::Collector.new(
-      args[:source], args[:client_id], args[:client_secret], args[:tenant_id], metrics
-    )
-    collector.collect!
-  else
-    pool = TopologicalInventory::Azure::CollectorsPool.new(args[:config], metrics)
-    pool.run!
-  end
-ensure
+metrics = TopologicalInventory::Azure::Collector::Metrics.new(args[:metrics_port])
+
+Signal.trap("TERM") do
   metrics.stop_server
+  exit
+end
+
+if args[:config].nil?
+  collector = TopologicalInventory::Azure::Collector.new(
+    args[:source], args[:client_id], args[:client_secret], args[:tenant_id], metrics
+  )
+  collector.collect!
+else
+  pool = TopologicalInventory::Azure::CollectorsPool.new(args[:config], metrics)
+  pool.run!
 end
