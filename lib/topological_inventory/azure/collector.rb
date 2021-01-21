@@ -33,7 +33,9 @@ module TopologicalInventory
         until finished?
           begin
             entity_types.each do |entity_type|
-              process_entity(entity_type)
+              metrics.record_refresh_timing(:entity_type => entity_type) do
+                process_entity(entity_type)
+              end
             end
           ensure
             standalone_mode ? sleep(poll_time) : stop
