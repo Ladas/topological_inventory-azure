@@ -52,3 +52,6 @@ bundler.d/*
 
 # dev configs
 /config/*-dev.yml
+
+# Local Bonfire (Clowder deploy) settings
+/config.yaml

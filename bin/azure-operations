@@ -5,6 +5,7 @@ require "bundler/setup"
 require "optimist"
 require "topological_inventory/azure/operations/worker"
 require "topological_inventory/azure/operations/metrics"
+require "topological_inventory/providers/common/clowder_config"
 
 def parse_args
   Optimist.options do
@@ -29,6 +30,10 @@ def check_args(args)
 end
 
 args = parse_args
+if TopologicalInventory::Providers::Common::ClowderConfig.clowder_enabled?
+  TopologicalInventory::Providers::Common::ClowderConfig.fill_args_operations(args)
+end
+
 check_args(args)
 
 SourcesApiClient.configure do |config|
