@@ -4,6 +4,7 @@ plugin 'bundler-inject', '~> 1.1'
 require File.join(Bundler::Plugin.index.load_paths("bundler-inject")[0], "bundler-inject") rescue nil
 
 gem "activesupport", '~> 5.2.4.3'
+gem "clowder-common-ruby" # version specified in providers-common
 gem "cloudwatchlogger", "~> 0.2.1"
 gem "concurrent-ruby"
 gem "manageiq-loggers", "~> 0.5.0"
@@ -15,7 +16,7 @@ gem "rake", ">= 12.3.3"
 gem "rest-client", "~>2.0"
 gem "sources-api-client", "~> 3.0"
 gem "topological_inventory-ingress_api-client", "~> 1.0.2"
-gem "topological_inventory-providers-common", "~> 2.1.5"
+gem "topological_inventory-providers-common", "~> 3.0.0"
 
 group :test, :development do
   gem "rspec"
